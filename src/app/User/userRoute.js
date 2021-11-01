@@ -1,3 +1,4 @@
+const user = require("./userController");
 module.exports = function(app){
     const user = require('./userController');
     const jwtMiddleware = require('../../../config/jwtMiddleware');
@@ -7,6 +8,10 @@ module.exports = function(app){
 
     // 1. 유저 생성 (회원가입) API
     app.post('/app/users', user.postUsers);
+
+    // 2. 로그인
+    // 로그인 하기 API (JWT 생성)
+    app.post('/app/login',jwtMiddleware, user.login);
 
     // 2. 유저 조회 API (+ 검색)
     app.get('/app/users',user.getUsers); 
