@@ -50,7 +50,7 @@ exports.postSignIn = async function (email, password) {
         const emailRows = await userProvider.emailCheck(email);
         if (emailRows.length < 1) return errResponse(baseResponse.SIGNIN_EMAIL_WRONG);
 
-        const selectEmail = emailRows[0].email
+        const selectEmail = emailRows[0].userEmail
 
         // 비밀번호 확인
         const hashedPassword = await crypto
@@ -61,7 +61,7 @@ exports.postSignIn = async function (email, password) {
         const selectUserPasswordParams = [selectEmail, hashedPassword];
         const passwordRows = await userProvider.passwordCheck(selectUserPasswordParams);
 
-        if (passwordRows[0].password !== hashedPassword) {
+        if (passwordRows[0].userPassword !== hashedPassword) {
             return errResponse(baseResponse.SIGNIN_PASSWORD_WRONG);
         }
 
@@ -74,12 +74,12 @@ exports.postSignIn = async function (email, password) {
             return errResponse(baseResponse.SIGNIN_WITHDRAWAL_ACCOUNT);
         }
 
-        console.log(userInfoRows[0].id) // DB의 userId
+        console.log(userInfoRows[0].userId) // DB의 userId
 
         //토큰 생성 Service
         let token = await jwt.sign(
             {
-                userId: userInfoRows[0].id,
+                userId: userInfoRows[0].userId,
             }, // 토큰의 내용(payload)
             secret_config.jwtsecret, // 비밀키
             {
@@ -88,7 +88,7 @@ exports.postSignIn = async function (email, password) {
             } // 유효 기간 365일
         );
 
-        return response(baseResponse.SUCCESS, {'userId': userInfoRows[0].id, 'jwt': token});
+        return response(baseResponse.SUCCESS, {'userId': userInfoRows[0].userId, 'jwt': token});
 
     } catch (err) {
         logger.error(`App - postSignIn Service error\n: ${err.message} \n${JSON.stringify(err)}`);

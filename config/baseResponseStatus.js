@@ -34,7 +34,8 @@ module.exports = {
 
     SCHEDULE_ACTIVATEDTIME_EMPTY : { "isSuccess": false, "code": 2019, "message": "일정 시작 시간을 입력해주세요" },
     SCHEDULE_ACTIVATEDAY_EMPTY : { "isSuccess": false, "code": 2020, "message": "일정 시작 날짜를 입력해주세요" },
-
+    SCHEDULE_ENDTIME_EMPTY: { "isSuccess": false, "code": 2021, "message": "일정 마무리 시간을 입력해주세요" },
+    SCHEDULE_COURSEDAY_EXIST: { "isSuccess": false, "code": 2022, "message": "요일이 잘못 되었습니다." },
     // Response error
     SIGNUP_REDUNDANT_EMAIL : { "isSuccess": false, "code": 3001, "message":"중복된 이메일입니다." },
     SIGNUP_REDUNDANT_NICKNAME : { "isSuccess": false, "code": 3002, "message":"중복된 닉네임입니다." },
@@ -44,7 +45,11 @@ module.exports = {
     SIGNIN_INACTIVE_ACCOUNT : { "isSuccess": false, "code": 3005, "message": "비활성화 된 계정입니다. 고객센터에 문의해주세요." },
     SIGNIN_WITHDRAWAL_ACCOUNT : { "isSuccess": false, "code": 3006, "message": "탈퇴 된 계정입니다. 고객센터에 문의해주세요." },
 
-    //Connection, Transaction 등의 서버 오류
+    SCHEDULE_EXIST: { "isSuccess": false, "code": 3007, "message": "해당 시간에 스케줄이 이미 존재합니다." },
+    SCHEDULE_ERROR: { "isSuccess": false, "code": 3008, "message": "일정 시간을 다시 확인 해 주세요" },//Connection, Transaction 등의 서버 오류
+    USER_UNACTIVATED:  { "isSuccess": false, "code": 3009, "message": "비활성화된 유저입니다." },
+
+
     DB_ERROR : { "isSuccess": false, "code": 4000, "message": "데이터 베이스 에러"},
     SERVER_ERROR : { "isSuccess": false, "code": 4001, "message": "서버 에러"},
  

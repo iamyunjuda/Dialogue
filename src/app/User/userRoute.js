@@ -11,7 +11,7 @@ module.exports = function(app){
 
     // 2. 로그인
     // 로그인 하기 API (JWT 생성)
-    app.post('/app/login',jwtMiddleware, user.login);
+    app.post('/app/login', user.login);
 
     // 2. 유저 조회 API (+ 검색)
     app.get('/app/users',user.getUsers); 

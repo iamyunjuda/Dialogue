@@ -5,9 +5,10 @@ module.exports = function(app){
 
 
     // 7. 나의 스케줄 추가 API
-    app.post('/app/useIds/:userId/schedules', jwtMiddleware, schedule.postSchedule);
+    app.post('/app/useIds/:userId/schedules',jwtMiddleware,schedule.postSchedule);
 
-
+    // 8. 나의 스케줄 조회 API
+    app.get('/app/useIds/:userId/schedules',jwtMiddleware, schedule.postSchedule);
 
 };
 

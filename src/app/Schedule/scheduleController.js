@@ -6,29 +6,40 @@ const {response, errResponse} = require("../../../config/response");
 
 const regexEmail = require("regex-email");
 const {emit} = require("nodemon");
-const userProvider = require("../../app/User/userProvider");
+
 
 
 /**
- * API No. 5
+ * API No. 7
  * API Name : 나의 스케줄 추가
  * [POST] /app/useIds/:userId/schedules
  */
 exports.postSchedule = async function (req, res) {
 
     /**
-     * body : userId, activatedTime, activatedDay, openTo(1-팀원, 2 나만), nameOpenTo,
+     * path Variable :userId
+     * body : startTime, endTime, courseName,
+     * courseDay, changeable, openTo(1-팀원, 2 나만), nameOpenTo,
      *
      */
-    const {userId, activatedTime, activatedDay, openTo, nameOpenTo} = req.body;
+
+    const userIdFromJWT = req.verifiedToken.userId
+    const userId = req.params.userId;
+    const {startTime, endTime, courseName, courseDay,changeable, openTo,nameOpenTo} = req.body;
 
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
-    if (!activatedTime) return res.send(errResponse(baseResponse.SCHEDULE_ACTIVATEDTIME_EMPTY));
-    if (!activatedDay) return res.send(errResponse(baseResponse.SCHEDULE_ACTIVATEDAY_EMPTY));
+    if (!startTime) return res.send(errResponse(baseResponse.SCHEDULE_ACTIVATEDTIME_EMPTY));
+    if(!endTime) return res.send(errResponse(baseResponse.SCHEDULE_ENDTIME_EMPTY));
+    if (!courseDay) return res.send(errResponse(baseResponse.SCHEDULE_ACTIVATEDAY_EMPTY));
+    if(courseDay>6) return res.send(errResponse(baseResponse.SCHEDULE_COURSEDAY_EXIST));
+    if (userIdFromJWT != userId) {
+        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+   }
 
     const scheduleAdd = await scheduleService.retrieveSchedulePost(
-        {userId, activatedTime, activatedDay, openTo, nameOpenTo}
+        userId, startTime, endTime, courseName, courseDay,changeable, openTo,nameOpenTo
     );
-    return res.send(response(baseResponse.SUCCESS, scheduleAdd));
+
+    return res.send(scheduleAdd);
 };
 

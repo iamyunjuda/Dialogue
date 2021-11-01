@@ -26,33 +26,31 @@ exports.postUsers = async function (req, res) {
     /**
      * Body: email, password, nickname
      */
-    const {email, password, nickname} = req.body;
+    const {userEmail, userPassword, userName} = req.body;
 
     // 빈 값 체크
-    if (!email)
+    if (!userEmail)
         return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
-    if (!password)
+    if (!userPassword)
         return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
-    if (!nickname)
+    if (!userName)
         return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
     // 길이 체크
-    if (email.length > 50)
+    if (userEmail.length > 50)
         return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
-    if (password.length > 20)
+    if (userPassword.length > 20)
         return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
-    if (nickname.length > 15)
+    if (userName.length > 15)
         return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
     // 형식 체크 (by 정규표현식)
-    if (!regexEmail.test(email))
+    if (!regexEmail.test(userEmail))
         return res.send(response(baseResponse.SIGNUP_EMAIL_ERROR_TYPE));
 
     // 기타 등등 - 추가하기
 
 
     const signUpResponse = await userService.createUser(
-        email,
-        password,
-        nickname
+        userEmail, userPassword, userName
     );
 
     return res.send(signUpResponse);
@@ -67,25 +65,25 @@ exports.postUsers = async function (req, res) {
  */
 exports.login = async function (req, res) {
 
-    const {email, password} = req.body;
+    const {userEmail, userPassword} = req.body;
 
-    if (!email)
+    if (!userEmail)
         return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
-    if (!password)
+    if (!userPassword)
         return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
 
     // 길이 체크
-    if (email.length > 50)
+    if (userEmail.length > 50)
         return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
-    if (password.length > 20)
+    if (userPassword.length > 20)
         return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
 
     // 형식 체크 (by 정규표현식)
-    if (!regexEmail.test(email))
+    if (!regexEmail.test(userEmail))
         return res.send(response(baseResponse.SIGNUP_EMAIL_ERROR_TYPE));
 
 
-    const signInResponse = await userService.postSignIn(email, password);
+    const signInResponse = await userService.postSignIn(userEmail, userPassword);
     //req.session.save(function(){
       //  res.redirect('/');
     //});

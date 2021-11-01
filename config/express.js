@@ -2,8 +2,8 @@ const express = require('express');
 const compression = require('compression');
 const methodOverride = require('method-override');
 var cors = require('cors');
-var session = require('express-session');
-var MySQLStore = require('express-mysql-session')(session);
+//var session = require('express-session');
+//var MySQLStore = require('express-mysql-session')(session);
 var options ={
 host: 'localhost',
     host: 'ssacdb.chcwlyzqnyjd.ap-northeast-2.rds.amazonaws.com',
@@ -27,13 +27,13 @@ module.exports = function () {
 
     app.use(cors());
     // app.use(express.static(process.cwd() + '/public'));
-    var sessionStore = new MySQLStore(options);
-    app.use(session({
-        secret:"asdfasffdas",
-        resave:false,
-        saveUninitialized:true,
-        store: sessionStore
-        }))
+   // var sessionStore = new MySQLStore(options);
+  //  app.use(session({
+   //     secret:"asdfasffdas",
+   //     resave:false,
+   //     saveUninitialized:true,
+   //     store: sessionStore
+   //     }))
 
     /* App (Android, iOS) */
     // TODO: 도메인을 추가할 경우 이곳에 Route를 추가하세요.
