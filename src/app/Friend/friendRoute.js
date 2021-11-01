@@ -1,6 +1,6 @@
-const scheduleController = require("./scheduleController");
+const friendController = require("./friendController");
 module.exports = function(app){
-    const scheduleController = require('./scheduleController');
+    const friendController = require('./friendController');
     const jwtMiddleware = require('../../../config/jwtMiddleware');
 
     // 0. 테스트 API
