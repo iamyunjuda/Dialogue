@@ -86,6 +86,9 @@ exports.login = async function (req, res) {
 
 
     const signInResponse = await userService.postSignIn(email, password);
+    //req.session.save(function(){
+      //  res.redirect('/');
+    //});
 
     return res.send(signInResponse);
 };

@@ -10,5 +10,7 @@ const {emit} = require("nodemon");
 /**
  * API No. 0
  * API Name : 테스트 API
- * [GET] /app/test
+ * [GET] /app/useIds/:userId/schedules
+ *
  */
+

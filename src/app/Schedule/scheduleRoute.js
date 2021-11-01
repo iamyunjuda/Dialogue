@@ -1,10 +1,11 @@
-const scheduleController = require("./scheduleController");
+const schedule = require("./scheduleController");
 module.exports = function(app){
-    const scheduleController = require('./scheduleController');
+    const schedule = require('./scheduleController');
     const jwtMiddleware = require('../../../config/jwtMiddleware');
 
-    // 0. 테스트 API
-    // app.get('/app/test', user.getTest)
+
+    // 7. 나의 스케줄 추가 API
+    app.post('/app/useIds/:userId/schedules', jwtMiddleware, schedule.postSchedule);
 
 
 
