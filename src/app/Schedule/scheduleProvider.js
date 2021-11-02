@@ -38,3 +38,14 @@ exports.userCheck = async function (userId) {
     connection.release();
     return checkUserResult.count;
 };
+
+exports.getSchedule = async function (userId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const selectUserScheduleResult = await scheduleDao.selectUserSchedule(
+        connection,
+        userId
+    );
+
+    connection.release();
+    return selectUserScheduleResult;
+};

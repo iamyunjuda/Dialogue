@@ -43,3 +43,29 @@ exports.postSchedule = async function (req, res) {
     return res.send(scheduleAdd);
 };
 
+/**
+ * API No. 8
+ * API Name : 나의 스케줄 조회
+ * [POST] /app/useIds/:userId/schedules
+ */
+exports.getSchedule = async function (req, res) {
+
+    /**
+     * path Variable :userId
+     */
+
+    const userIdFromJWT = req.verifiedToken.userId
+    const userId = req.params.userId;
+
+    if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+    if (userIdFromJWT != userId) {
+        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+    }
+
+    const scheduleGet = await scheduleService.retrieveScheduleGet(
+        userId);
+
+    return res.send(scheduleGet);
+};
+
+

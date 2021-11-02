@@ -8,7 +8,7 @@ module.exports = function(app){
     app.post('/app/useIds/:userId/schedules',jwtMiddleware,schedule.postSchedule);
 
     // 8. 나의 스케줄 조회 API
-    app.get('/app/useIds/:userId/schedules',jwtMiddleware, schedule.postSchedule);
+    app.get('/app/useIds/:userId/schedules',jwtMiddleware, schedule.getSchedule);
 
 };
 

@@ -53,10 +53,23 @@ async function getScheduleCheck(connection, params) {
     return scheduleRows;
 }
 
+async function selectUserSchedule(connection, userId) {
+    const getScheduleCheckQuery = `
+
+        select userId, courseName, startTimeHour, startTimeMin, endTimeHour, endTimeMin, courseDay, changeable, openTo, nameOpenTo
+        From Schedule where userId =? and status='ACTIVATED';
+       
+    `;
+    const [scheduleRows] = await connection.query(getScheduleCheckQuery,userId);
+
+    return scheduleRows;
+}
+
 
 module.exports = {
     selectScheduleCheck,
     selectUserCheck,
     postSchedule,
     getScheduleCheck,
+    selectUserSchedule,
 };

@@ -78,3 +78,51 @@ exports.retrieveSchedulePost = async function (userId, startTime, endTime, cours
 
 
 }
+
+exports.retrieveScheduleGet = async function (userId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    try{
+
+
+        await connection.beginTransaction();
+
+        //var startTimesplit = startTime.split(":");
+      //  var endTimesplit = endTime.split(":");
+        //이미 존재하는 스케줄이 있는지 학인하기
+
+
+
+        //활성화된 유저인지 확인
+        const userCheckRows = await scheduleProvider.userCheck(userId);
+        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        const getSchedule = await scheduleProvider.getSchedule(userId);
+
+
+        for(var i=0;i<getSchedule.length;i++){
+
+           const startTime = (getSchedule[i].startTimeHour)+':'+(getSchedule[i].startTimeMin);
+           const endTime =  (getSchedule[i].endTimeHour) +':'+(getSchedule[i].endTimeMin);
+
+           getSchedule[i].startTime=startTime;
+           getSchedule[i].endTime=endTime;
+
+        }
+
+
+        await connection.commit();
+        connection.release();
+        return response(baseResponse.SUCCESS,getSchedule);
+
+    }
+    catch (err){
+
+        await connection.rollback();
+        connection.release();
+        logger.error(`App - postSchedule Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+
+    }
+
+
+}
+
