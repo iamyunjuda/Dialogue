@@ -112,14 +112,15 @@ async function selectUserSchedule(connection, userId) {
     return scheduleRows;
 }
 
-async function getScheduleCheckForPatch(connection, scheduleStatusId) {
+async function getScheduleCheckForPatch(connection, scheduleId) {
+    console.log(scheduleId,"ch");
     const getScheduleCheckQuery = `
 
-        select count(scheduleStatusId) as count
-        From Schedule where scheduleStatusId =? and status='ACTIVATED';
+        select count(courseName) as count
+        FROM Schedule WHERE scheduleStatusId = ? and status = 'ACTIVATED';
        
     `;
-    const [scheduleRows] = await connection.query(getScheduleCheckQuery,scheduleStatusId);
+    const [scheduleRows] = await connection.query(getScheduleCheckQuery,scheduleId);
 
     return scheduleRows;
 }
