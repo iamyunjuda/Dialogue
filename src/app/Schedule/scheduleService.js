@@ -205,7 +205,7 @@ exports.retrieveSchedulePatch = async function (scheduleId, userId, startTime, e
 
         //활성화된 유저인지 확인
         const userCheckRows = await scheduleProvider.userCheck(userId);
-
+console.log("check1",scheduleId);
         if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
 
 
@@ -213,10 +213,14 @@ exports.retrieveSchedulePatch = async function (scheduleId, userId, startTime, e
 
         //이미 존재하는 스케줄이 있는지 학인하기
         var result= [];
-        const getScheduleExist = await scheduleProvider.getScheduleExistForPatch(scheduleStatusId);
+
+        const getScheduleExist = await scheduleProvider.getScheduleExistForPatch(scheduleId);
+        console.log("check2");
         if(getScheduleExist[0].count ==0) return  response(baseResponse.SCHEDULE_NOT_EXIST);
 
+        console.log("check4",courseDay);
         for(var i=0;i< courseDay.length ;i++){
+
             const getSchedule = await scheduleProvider.getScheduleExist(userId,courseDay[i]);
             console.log(getSchedule,"1");
             result.push(getSchedule);
@@ -227,6 +231,7 @@ exports.retrieveSchedulePatch = async function (scheduleId, userId, startTime, e
             for (var j = 0; j < result[i].length; j++) {
                 console.log(2, result[i][j].scheduleStatusId, 3, result[i][j]);
                 const checkParams = [startTimesplit[0], startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[0], endTimesplit[1], result[i][j].scheduleStatusId];
+
                 const scheduleRows = await scheduleProvider.scheduleCheck(checkParams);
 
 

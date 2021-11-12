@@ -58,12 +58,12 @@ exports.getTeamScheduleExist = async function (userId,courseDay) {
 
 
 
-exports.getScheduleExistForPatch = async function (scheduleStatusId) {
+exports.getScheduleExistForPatch = async function (scheduleId) {
     const connection = await pool.getConnection(async (conn) => conn);
 
     const getScheduleCheckResult = await scheduleDao.getScheduleCheckForPatch(
         connection,
-        scheduleStatusId
+        scheduleId
     );
 
     connection.release();
