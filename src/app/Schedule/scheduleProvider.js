@@ -69,6 +69,18 @@ exports.getScheduleExistForPatch = async function (scheduleId) {
     connection.release();
     return getScheduleCheckResult;
 };
+exports.checkTheyAreFriend = async function (userId, friendId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const params =[userId, friendId];
+    const checkTheyAreFriendResult = await scheduleDao.checkTheyAreFriend(
+        connection,
+        params
+    );
+
+    connection.release();
+    return checkTheyAreFriendResult;
+};
+
 exports.getTeamScheduleExistForPatch = async function (teamScheduleId) {
     const connection = await pool.getConnection(async (conn) => conn);
 

@@ -11,15 +11,16 @@ module.exports = function(app){
     // 8. 나의 스케줄 조회 API
     app.get('/app/userIds/:userId/schedules',jwtMiddleware, schedule.getSchedule);
 
-
     //9. 나의 스케줄 수정 API
     app.patch('/app/userIds/:userId/schedules',jwtMiddleware, schedule.patchSchedule);
 
     // 스케줄 합치기
     app.get('/app/userIds/:userId/teamIds/:teamId/teamschedules',jwtMiddleware, schedule.getAllMembersSchedules);
 
+    //해당 유저 스케줄 가져오기(user정보 없이 - 임시)
+    app.get('/app/friendIds/:friendId/schedules', jwtMiddleware,schedule.getUserSchedule);
     //해당 유저 스케줄 가져오기
-    app.get('/app/friendIds/:friendId/schedules', schedule.getUserSchedule);
+    app.get('/app/userIds/:userId/friendIds/:friendId/schedules', jwtMiddleware,schedule.getFriendSchedule);
 
 //x테스트 안해봄
     //28

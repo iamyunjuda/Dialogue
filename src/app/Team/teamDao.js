@@ -80,7 +80,7 @@ async function checkTeamIdExist(connection, teamId) {
 
 async function patchTeam(connection, params) {
     const patchTeamQuery = `
-        update Team Set teamName=? , dueDate=? where teamId=? and status='ACTIVATED';
+        update Team Set teamName=? , dueDate=?, updatedAt= current_timestamp() where teamId=? and status='ACTIVATED';
        
     `;
     const [userRows] = await connection.query(patchTeamQuery,params);
@@ -98,7 +98,7 @@ async function getTeamMembers(connection, params) {
 }
 async function patchTeamMembers(connection, params) {
     const patchTeamMembersQuery = `
-        update TeamInfo Set status='UNACTIVATED' where teamId=? and userId = ? and status='ACTIVATED';
+        update TeamInfo Set status='UNACTIVATED',updatedAt= current_timestamp() where teamId=? and userId = ? and status='ACTIVATED';
     `;
     const [userRows] = await connection.query(patchTeamMembersQuery,params);
     return userRows;
@@ -113,7 +113,7 @@ async function checkTeamId(connection, teamScheduleId) {
 }
 async function patchTeamStatus(connection, teamId) {
     const checkTeamIdQuery = `
-        UPDATE Team SET status='UNACTIVATED' where teamId= ? and status= 'ACTIVATED';
+        UPDATE Team SET status='UNACTIVATED', updatedAt= current_timestamp() where teamId= ? and status= 'ACTIVATED';
 
     `;
     console.log(teamId,"here");

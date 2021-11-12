@@ -23,7 +23,7 @@ exports.postSchedule = async function (req, res) {
      *
      */
 
-    const userIdFromJWT = req.verifiedToken.userId
+    const userIdFromJWT = req.verifiedToken.userId;
     const userId = req.params.userId;
     const {startTime, endTime, courseName, courseDay,isChangeable, isPublic,isNameHidden} = req.body;
 
@@ -61,7 +61,7 @@ exports.getSchedule = async function (req, res) {
      * path Variable :userId
      */
 
-    const userIdFromJWT = req.verifiedToken.userId
+    const userIdFromJWT = req.verifiedToken.userId;
     const userId = req.params.userId;
 
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
@@ -83,7 +83,7 @@ exports.getSchedule = async function (req, res) {
  */
 exports.patchSchedule = async function (req, res) {
 
-    const userIdFromJWT = req.verifiedToken.userId
+    const userIdFromJWT = req.verifiedToken.userId;
     const userId = req.params.userId;
     const {scheduleId, startTime, endTime, courseName, courseDay,isChangeable,  isPublic, isNameHidden} = req.body;
 
@@ -115,7 +115,7 @@ exports.patchSchedule = async function (req, res) {
  */
 exports.patchScheduleStatus = async function (req, res) {
 
-    const userIdFromJWT = req.verifiedToken.userId
+    const userIdFromJWT = req.verifiedToken.userId;
 
     const userId = req.params.userId;
     const {scheduleId} = req.body;
@@ -146,7 +146,7 @@ exports.patchScheduleStatus = async function (req, res) {
  */
 exports.getAllMembersSchedules = async function (req, res) {
 
-    const userIdFromJWT = req.verifiedToken.userId
+    const userIdFromJWT = req.verifiedToken.userId;
     const userId = req.params.userId;
     const teamId = req.params.teamId;
 
@@ -180,9 +180,9 @@ exports.getUserSchedule = async function (req, res) {
      * path Variable :userId
      */
 
-
+    //const userIdFromJWT = req.verifiedToken.userId;
+ //   const userId = req.params.userId;
     const friendId = req.params.friendId;
-
     if (!friendId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
 
     const scheduleGet = await scheduleService.retrieveScheduleGet(
@@ -190,6 +190,33 @@ exports.getUserSchedule = async function (req, res) {
 
     return res.send(scheduleGet);
 };
+
+exports.getFriendSchedule = async function (req, res) {
+
+    /**
+     * path Variable :userId
+     */
+
+    const userIdFromJWT = req.verifiedToken.userId;
+    const userId = req.params.userId;
+    const friendId = req.params.friendId;
+    if (!friendId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+    if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+
+    if (userIdFromJWT != userId) {
+        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+    }
+
+
+
+    const friendScheduleGet = await scheduleService.retrieveGetFriendSchedule(
+       userId, friendId);
+
+    return res.send(friendScheduleGet);
+};
+
+
+
 /**
  * API No.
  * API Name : 팀장이 팀 일정 추가하는 기능
