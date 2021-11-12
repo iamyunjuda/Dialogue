@@ -174,6 +174,58 @@ exports.retrieveScheduleGet = async function (userId) {
 
 };
 
+exports.retrieveGetFriendSchedule = async function (userId,friendId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    try{
+
+
+        await connection.beginTransaction();
+
+
+        //활성화된 유저인지 확인
+        const userCheckRows = await scheduleProvider.userCheck(userId);
+        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+
+        const friendCheckRows = await scheduleProvider.userCheck(friendId);
+        if(friendCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+
+        //둘이 친구인지 확인하기!
+        const checkThem = await scheduleProvider.checkTheyAreFriend(userId, friendId);
+        if(checkThem.count == 0)  return  response(baseResponse.FRIEND_NOT_EXIST);
+
+
+        const getSchedule = await scheduleProvider.getSchedule(userId);
+        for(var i=0;i<getSchedule.length;i++){
+            getSchedule[i].scheduleId = stringify(getSchedule[i].scheduleId);
+            const startTime = (getSchedule[i].startTimeHour)+':'+(getSchedule[i].startTimeMin);
+            const endTime =  (getSchedule[i].endTimeHour) +':'+(getSchedule[i].endTimeMin);
+
+            getSchedule[i].startTime=startTime;
+            getSchedule[i].endTime=endTime;
+            delete getSchedule[i].startTimeHour;
+            delete getSchedule[i]["startTimeMin"];
+            delete getSchedule[i]['endTimeHour'];
+            delete getSchedule[i]['endTimeMin'];
+
+        }
+        await connection.commit();
+        connection.release();
+
+        return response(baseResponse.SUCCESS,getSchedule);
+
+    }
+    catch (err){
+
+        await connection.rollback();
+        connection.release();
+        logger.error(`App - postSchedule Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+
+    }
+
+
+};
+
 exports.retrieveSchedulePatch = async function (scheduleId, userId, startTime, endTime, courseName, courseDay,isChangeable, isPublic,isNameHidden) {
     const connection = await pool.getConnection(async (conn) => conn);
     try{

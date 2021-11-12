@@ -76,7 +76,7 @@ async function selectUserAccount(connection, email) {
 async function updateUserInfo(connection, params) {
   const updateUserQuery = `
   UPDATE User
-  SET userName = ?, userPassword = ?
+  SET userName = ?, userPassword = ?, updatedAt= current_timestamp()
   WHERE userId = ?;`;
   const updateUserRow = await connection.query(updateUserQuery, params);
   return updateUserRow[0];
@@ -85,7 +85,7 @@ async function updateUserInfo(connection, params) {
 async function updateUserAccountStatus(connection,params) {
   const updateUserQuery = `
   UPDATE User
-  SET status = ?
+  SET status = ?,updatedAt= current_timestamp()
   WHERE userId = ?;`;
   const updateUserRow = await connection.query(updateUserQuery,params);
   return updateUserRow[0];

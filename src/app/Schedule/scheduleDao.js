@@ -140,7 +140,7 @@ async function updateScheduleInfo(connection, params) {
     const updateScheduleInfoQuery = `
 
         UPDATE Schedule SET 
-         courseName=?, startTimeHour=?, startTimeMin=?,endTimeHour=?, endTimeMin=?, courseDay=?, isChangeable=?, isPublic=?, isNameHidden=?
+         courseName=?, startTimeHour=?, startTimeMin=?,endTimeHour=?, endTimeMin=?, courseDay=?, isChangeable=?, isPublic=?, isNameHidden=?, updatedAt= current_timestamp()
         where scheduleStatusId=?;
 
     `;
@@ -213,7 +213,7 @@ async function selectTeamLeader(connection, teamScheduleId) {
 async function patchTeamSchedule(connection, params) {
     const patchTeamScheduleQuery = `
         UPDATE TeamSchedule SET
-                                teamId= ? , startTimeHour=?, startTimeMin=?,endTimeHour=?, endTimeMin=?, courseDay=?
+                                teamId= ? , startTimeHour=?, startTimeMin=?,endTimeHour=?, endTimeMin=?, courseDay=?, updatedAt= current_timestamp()
         where teamScheduleId=?;
     `;
     const [scheduleRows] = await connection.query(patchTeamScheduleQuery,params);
@@ -223,7 +223,7 @@ async function patchTeamSchedule(connection, params) {
 async function patchTeamScheduleStatus(connection, teamScheduleId) {
     const patchTeamScheduleStatusQuery = `
         UPDATE TeamSchedule SET
-                               status = 'UNACTIVATED'
+                               status = 'UNACTIVATED', updatedAt= current_timestamp()
         where teamScheduleId=?;
     `;
     const [scheduleRows] = await connection.query(patchTeamScheduleStatusQuery,teamScheduleId);
@@ -234,7 +234,7 @@ async function patchTeamScheduleStatus(connection, teamScheduleId) {
 async function updateTeamScheduleName(connection, params) {
     const patchTeamScheduleStatusQuery = `
         UPDATE TeamSchedule SET
-                              courseName= ? 
+                              courseName= ? ,updatedAt= current_timestamp()
         where teamScheduleId=?;
     `;
     const [scheduleRows] = await connection.query(patchTeamScheduleStatusQuery,params);
@@ -244,7 +244,7 @@ async function updateTeamScheduleName(connection, params) {
 async function patchScheduleStatus(connection, scheduleId) {
     const patchScheduleStatusQuery = `
         UPDATE Schedule SET
-            status= 'UNACTIVATED'
+            status= 'UNACTIVATED', updatedAt= current_timestamp()
         where scheduleStatusId=? and status = 'ACTIVATED';
 
     `;
@@ -252,6 +252,18 @@ async function patchScheduleStatus(connection, scheduleId) {
 
     return scheduleRows[0];
 }
+async function checkTheyAreFriend(connection, params) {
+    const checkTheyAreFriendQuery = `
+
+        select count(friendId) as count from Friend where userId= ? and targetId=? and status ='ACTIVATED';
+
+
+    `;
+    const [scheduleRows] = await connection.query(checkTheyAreFriendQuery,params);
+
+    return scheduleRows[0];
+}
+
 
 
 
@@ -279,5 +291,6 @@ module.exports = {
     patchTeamScheduleStatus,
     updateTeamScheduleName,
     patchScheduleStatus,
+    checkTheyAreFriend,
 
 };
