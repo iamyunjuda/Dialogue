@@ -22,19 +22,21 @@ async function selectUserEmail(connection, email) {
 // userId 회원 조회
 async function selectUserId(connection, userId) {
   const selectUserIdQuery = `
-                 SELECT userId, userEmail, userName 
+                 SELECT ID
                  FROM User 
-                 WHERE userId = ?;
+                 WHERE ID = ?;
                  `;
   const [userRow] = await connection.query(selectUserIdQuery, userId);
   return userRow;
 }
 
+
+
 // 유저 생성
 async function insertUserInfo(connection, insertUserInfoParams) {
   const insertUserInfoQuery = `
-        INSERT INTO User(userEmail, userPassword, userName)
-        VALUES (?, ?, ?);
+        INSERT INTO User(userEmail, userPassword, userName,ID)
+        VALUES (?, ?, ?,?);
     `;
   const insertUserInfoRow = await connection.query(
     insertUserInfoQuery,
@@ -71,16 +73,23 @@ async function selectUserAccount(connection, email) {
   return selectUserAccountRow[0];
 }
 
-async function updateUserInfo(connection, id, nickname) {
+async function updateUserInfo(connection, params) {
   const updateUserQuery = `
   UPDATE User
-  SET userName = ?
+  SET userName = ?, userPassword = ?
   WHERE userId = ?;`;
-  const updateUserRow = await connection.query(updateUserQuery, [nickname, id]);
+  const updateUserRow = await connection.query(updateUserQuery, params);
   return updateUserRow[0];
 }
 
-
+async function updateUserAccountStatus(connection,params) {
+  const updateUserQuery = `
+  UPDATE User
+  SET status = ?
+  WHERE userId = ?;`;
+  const updateUserRow = await connection.query(updateUserQuery,params);
+  return updateUserRow[0];
+}
 module.exports = {
   selectUser,
   selectUserEmail,
@@ -89,4 +98,5 @@ module.exports = {
   selectUserPassword,
   selectUserAccount,
   updateUserInfo,
+  updateUserAccountStatus,
 };

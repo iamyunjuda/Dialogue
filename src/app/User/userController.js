@@ -26,22 +26,26 @@ exports.postUsers = async function (req, res) {
     /**
      * Body: email, password, nickname
      */
-    const {userEmail, userPassword, userName} = req.body;
+    const {userEmail, userPassword, userName, userId} = req.body;
 
     // 빈 값 체크
     if (!userEmail)
         return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
     if (!userPassword)
-        return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
+        return res.send(response(baseResponse.SIGNUP_PASSWORD_EMPTY));
     if (!userName)
-        return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_EMPTY));
+    if (!userId)
+        return res.send(response(baseResponse.USER_USERID_EMPTY));
     // 길이 체크
     if (userEmail.length > 50)
         return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
     if (userPassword.length > 20)
-        return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
+        return res.send(response(baseResponse.SIGNUP_PASSWORD_LENGTH));
+    if (userId.length > 15)
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
     if (userName.length > 15)
-        return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
     // 형식 체크 (by 정규표현식)
     if (!regexEmail.test(userEmail))
         return res.send(response(baseResponse.SIGNUP_EMAIL_ERROR_TYPE));
@@ -50,7 +54,7 @@ exports.postUsers = async function (req, res) {
 
 
     const signUpResponse = await userService.createUser(
-        userEmail, userPassword, userName
+        userEmail, userPassword, userName,userId
     );
 
     return res.send(signUpResponse);
@@ -137,7 +141,7 @@ exports.getUserById = async function (req, res) {
 
 
 /**
- * API No. 5
+ * API No. 22
  * API Name : 회원 정보 수정 API + JWT + Validation
  * [PATCH] /app/users/:userId
  * path variable : userId
@@ -150,14 +154,53 @@ exports.patchUsers = async function (req, res) {
     const userIdFromJWT = req.verifiedToken.userId
 
     const userId = req.params.userId;
-    const nickname = req.body.nickname;
+    const {userName, userPassword} = req.body;
+    if (!userPassword)
+        return res.send(response(baseResponse.SIGNUP_PASSWORD_EMPTY));
+    if (!userName)
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_EMPTY));
+    if (userPassword.length > 20)
+        return res.send(response(baseResponse.SIGNUP_PASSWORD_LENGTH));
+    if (userName.length > 15)
+        return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
+
 
     if (userIdFromJWT != userId) {
         res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     } else {
-        if (!nickname) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
+        if (!userName) return res.send(errResponse(baseResponse.USER_NICKNAME_EMPTY));
 
-        const editUserInfo = await userService.editUser(userId, nickname)
+        const editUserInfo = await userService.editUser(userId, userName, userPassword)
+        return res.send(editUserInfo);
+    }
+};
+
+
+/**
+ * API No. 5
+ * API Name : 회원 상태 바꾸기
+ * [PATCH] /app/users/:userId
+ * path variable : userId
+ * body : nickname
+ */
+exports.patchUsersStatus = async function (req, res) {
+
+    // jwt - userId, path variable :userId
+
+    const userIdFromJWT = req.verifiedToken.userId
+
+    const userId = req.params.userId;
+    const {status} = req.query.status;
+
+
+
+    //WITHDRAWAL, UNACTIVATED
+    if (userIdFromJWT != userId) {
+        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+    } else {
+        if (!status) return res.send(errResponse(baseResponse.USER_STATUS_EMPTY));
+
+        const editUserInfo = await userService.editUserState(userId, status)
         return res.send(editUserInfo);
     }
 };

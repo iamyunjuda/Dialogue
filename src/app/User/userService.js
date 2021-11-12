@@ -10,12 +10,16 @@ const {errResponse} = require("../../../config/response");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const {connect} = require("http2");
+const friendProvider = require("../Friend/friendProvider");
 
 // Service: Create, Update, Delete 비즈니스 로직 처리
 
-exports.createUser = async function (email, password, nickname) {
+exports.createUser = async function (email, password, nickname,userId) {
+
+    const connection = await pool.getConnection(async (conn) => conn);
     try {
         // 이메일 중복 확인
+        await connection.beginTransaction();
         const emailRows = await userProvider.emailCheck(email);
         if (emailRows.length > 0)
             return errResponse(baseResponse.SIGNUP_REDUNDANT_EMAIL);
@@ -25,19 +29,24 @@ exports.createUser = async function (email, password, nickname) {
             .createHash("sha512")
             .update(password)
             .digest("hex");
+        const userId = await userProvider.userIdCheck(userId);
+        if (userId.length > 0)
+            return errResponse(baseResponse.SIGNUP_REDUNDANT_USERID);
 
-        const insertUserInfoParams = [email, hashedPassword, nickname];
+        const insertUserInfoParams = [email, hashedPassword, nickname,userId];
 
-        const connection = await pool.getConnection(async (conn) => conn);
 
         const userIdResult = await userDao.insertUserInfo(connection, insertUserInfoParams);
         console.log(`추가된 회원 : ${userIdResult[0].insertId}`)
+        await connection.commit();
         connection.release();
         return response(baseResponse.SUCCESS);
 
 
     } catch (err) {
+        await connection.rollback();
         logger.error(`App - createUser Service error\n: ${err.message}`);
+        await connection.release();
         return errResponse(baseResponse.DB_ERROR);
     }
 };
@@ -45,7 +54,10 @@ exports.createUser = async function (email, password, nickname) {
 
 // TODO: After 로그인 인증 방법 (JWT)
 exports.postSignIn = async function (email, password) {
+    const connection = await pool.getConnection(async (conn) => conn);
+
     try {
+        await connection.beginTransaction();
         // 이메일 여부 확인
         const emailRows = await userProvider.emailCheck(email);
         if (emailRows.length < 1) return errResponse(baseResponse.SIGNIN_EMAIL_WRONG);
@@ -87,7 +99,8 @@ exports.postSignIn = async function (email, password) {
                 subject: "userInfo",
             } // 유효 기간 365일
         );
-
+        await connection.commit();
+        connection.release();
         return response(baseResponse.SUCCESS, {'userId': userInfoRows[0].userId, 'jwt': token});
 
     } catch (err) {
@@ -96,16 +109,49 @@ exports.postSignIn = async function (email, password) {
     }
 };
 
-exports.editUser = async function (id, nickname) {
+exports.editUser = async function (userId, userName, userPassword) {
+
+    const connection = await pool.getConnection(async (conn) => conn);
     try {
-        console.log(id)
-        const connection = await pool.getConnection(async (conn) => conn);
-        const editUserResult = await userDao.updateUserInfo(connection, id, nickname)
+        await connection.beginTransaction();
+
+        const userCheckRows = await friendProvider.userCheck(userId);
+        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+
+
+
+        const params = [userName, userPassword,userId];
+
+        const editUserResult = await userDao.updateUserInfo(connection, params);
+        await connection.commit();
         connection.release();
 
         return response(baseResponse.SUCCESS);
 
     } catch (err) {
+        await connection.rollback();
+        connection.release();
+        logger.error(`App - editUser Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+    }
+}
+exports.editUserState = async function (userId, status) {
+    const connection = await pool.getConnection(async (conn) => conn);
+
+    try {
+        await connection.beginTransaction();
+        const userCheckRows = await friendProvider.userCheck(userId);
+        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+
+        const editUserStateResult = await userProvider.updateUserStateInfo(userId, status)
+        await connection.commit();
+        connection.release();
+
+        return response(baseResponse.SUCCESS);
+
+    } catch (err) {
+        await connection.rollback();
+        connection.release();
         logger.error(`App - editUser Service error\n: ${err.message}`);
         return errResponse(baseResponse.DB_ERROR);
     }
