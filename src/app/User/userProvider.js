@@ -38,6 +38,13 @@ exports.emailCheck = async function (email) {
 
   return emailCheckResult;
 };
+exports.userIdCheck = async function (userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const userIdCheckResult = await userDao.selectUserId(connection, userId);
+  connection.release();
+
+  return emailCheckResult;
+};
 
 exports.passwordCheck = async function (selectUserPasswordParams) {
   const connection = await pool.getConnection(async (conn) => conn);
@@ -56,3 +63,12 @@ exports.accountCheck = async function (email) {
 
   return userAccountResult;
 };
+exports.updateUserStateInfo = async function (userId, status) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const params = [ status,userId];
+  const updateUserAccountStatusResult = await userDao.updateUserAccountStatus(connection, params);
+  connection.release();
+
+  return updateUserAccountStatusResult;
+};
+
