@@ -43,11 +43,11 @@ async function selectFriendRequestExist(connection, friendRequestId) {
 
 async function selectFriendIds(connection, friendRequestId) {
     const selectFriendIdsQuery = `
-        select userId, targetId from FriendRequest where friendRequestId= ? and status='ACTIVATED';
+        select userId, targetId as target from FriendRequest where friendRequestId= ? and status='ACTIVATED';
         
     `;
     const [friendRows] = await connection.query(selectFriendIdsQuery,friendRequestId);
-    return friendRows[0];
+    return friendRows;
 }
 
 async function selectFriendLists(connection, params) {

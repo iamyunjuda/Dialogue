@@ -88,8 +88,8 @@ exports.retrievePostFriendRequest = async function (userId, friendRequestId) {
 
         //userID와 targetId 불러오기
         const getUserIds = await friendProvider.getFriendIds(friendRequestId);
-        const targetId = getUserIds.userId;
-        console.log(userId,"비교대상");
+        const targetId = getUserIds[0].target;
+        console.log(getUserIds,"비교대상");
         console.log("userId와 다른 값이어야함",targetId);
         //요청 수락하기 : 과정 = 요청 수락시 상태 UNACTIVATED로 바꾸고 insert
         //이미 친구였던적 있는지 확인
