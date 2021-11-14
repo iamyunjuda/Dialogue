@@ -180,6 +180,26 @@ async function getFriendList3(connection, params) {
     const [friendRows] = await connection.query(searchFriendNameQuery,params);
     return friendRows;
 }
+async function getFriendRequest(connection, userId) {
+    const getFriendRequestQuery = `
+
+        select friendRequestId, U.userName from (FriendRequest F inner join User U on F.targetId = U.userId) where F.userId= ? and F.status ='ACTIVATED';
+
+    `;
+    const [friendRows] = await connection.query(getFriendRequestQuery,userId);
+    return friendRows;
+}
+async function friendRequestPatch(connection, params) {
+    const getFriendRequestQuery = `
+
+
+
+        update FriendRequest Set status='UNACTIVATED', updatedAt = current_timestamp() where userId=? and friendRequestId=? and status='ACTIVATED';
+
+    `;
+    const [friendRows] = await connection.query(getFriendRequestQuery,params);
+    return friendRows;
+}
 
 
 
@@ -207,5 +227,7 @@ module.exports={
     getFriendList,
     getFriendList2,
     getFriendList3,
+    friendRequestPatch,
+    getFriendRequest,
 
 }

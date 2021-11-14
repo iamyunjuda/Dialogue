@@ -41,7 +41,39 @@ exports.postFriendSend = async function (req, res) {
 
 
 }
+/**
+ * API No. 9
+ * API Name : 친구 신청 API
+ *
+ */
 
+exports.patchFriendRequestRefuse = async function (req, res) {
+
+    const userId = req.params.userId;
+
+    const userIdFromJWT = req.verifiedToken.userId;
+
+    const {friendRequestId} = req.query;
+
+    if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+    if (userIdFromJWT != userId) {
+        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+
+
+    }
+    if(!friendRequestId) return res.send(errResponse(baseResponse.FRIEND_REQUEST_NOT_EXIST));
+
+
+
+
+    const friendRequest = await friendService.retrieveFriendRequestRefuse(
+        userId, friendRequestId
+    );
+
+    return res.send(friendRequest);
+
+
+}
 /**
  * API No. 10
  * API Name : 친구 수락 API
@@ -229,6 +261,37 @@ exports.searchFriendByName = async function (req, res) {
     );
 
     return res.send(searchFriendByNameRequest);
+
+
+}
+
+/**
+ * API No. 14
+ * API Name : 친구 검색하기
+ * [get] /app/userIds/:userId/friends
+ *
+ *
+ */
+
+exports.getFriendRequestList = async function (req, res) {
+    const userId = req.params.userId;
+    const userIdFromJWT = req.verifiedToken.userId;
+    const friendName = req.query.friendName;
+
+
+    if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+    if (userIdFromJWT != userId) {
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+
+
+    }
+    // if (friendName<15) return res.send(errResponse(baseResponse.USER_NAME_LENGTH));
+
+    const friendRequestResult = await friendService.retrieveFriendRequestList(
+        userId
+    );
+
+    return res.send(friendRequestResult);
 
 
 }

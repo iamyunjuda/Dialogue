@@ -43,7 +43,7 @@ exports.userIdCheck = async function (userId) {
   const userIdCheckResult = await userDao.selectUserId(connection, userId);
   connection.release();
 
-  return emailCheckResult;
+  return userIdCheckResult;
 };
 
 exports.passwordCheck = async function (selectUserPasswordParams) {

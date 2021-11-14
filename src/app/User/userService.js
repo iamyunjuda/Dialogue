@@ -15,7 +15,7 @@ const friendProvider = require("../Friend/friendProvider");
 // Service: Create, Update, Delete 비즈니스 로직 처리
 
 exports.createUser = async function (email, password, nickname,userId) {
-
+    console.log(userId);
     const connection = await pool.getConnection(async (conn) => conn);
     try {
         // 이메일 중복 확인
@@ -29,15 +29,18 @@ exports.createUser = async function (email, password, nickname,userId) {
             .createHash("sha512")
             .update(password)
             .digest("hex");
-        const userId = await userProvider.userIdCheck(userId);
-        if (userId.length > 0)
+        const userIdCheck = await userProvider.userIdCheck(userId);
+        console.log(userId);
+        if (userIdCheck.length > 0)
             return errResponse(baseResponse.SIGNUP_REDUNDANT_USERID);
 
         const insertUserInfoParams = [email, hashedPassword, nickname,userId];
 
-
+        console.log(userId);
         const userIdResult = await userDao.insertUserInfo(connection, insertUserInfoParams);
         console.log(`추가된 회원 : ${userIdResult[0].insertId}`)
+
+
         await connection.commit();
         connection.release();
         return response(baseResponse.SUCCESS);

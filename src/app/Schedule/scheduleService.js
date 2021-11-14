@@ -368,7 +368,7 @@ exports.retrieveAllSchedules = async function (userId, teamId) {
 
                 const startTime = (getSchedule[i].startTimeHour) + ':' + (getSchedule[i].startTimeMin);
                 const endTime = (getSchedule[i].endTimeHour) + ':' + (getSchedule[i].endTimeMin);
-
+                try{
                 getSchedule[i].startTime = startTime;
                 getSchedule[i].endTime = endTime;
                 getSchedule[i].userId = getUserRows[j].userId;
@@ -376,7 +376,10 @@ exports.retrieveAllSchedules = async function (userId, teamId) {
                 delete getSchedule[i]["startTimeMin"];
                 delete getSchedule[i]['endTimeHour'];
                 delete getSchedule[i]['endTimeMin'];
-            ret.push(getSchedule[i])
+            ret.push(getSchedule[i]);}
+                catch(err){
+                    continue;
+                }
 
             }
 

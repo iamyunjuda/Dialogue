@@ -1,16 +1,70 @@
 const passport = require('passport');
 const KakaoStrategy = require('passport-kakao').Strategy;
+
+const AppleStrategy = require('passport-apple');
 const socialService = require("./socialService");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const userProvider =require("../User/userProvider");
 const userService =require("../User/userService");
+//const AppleStrategy = require("passport-apple");
+
 passport.use('kakao-login', new KakaoStrategy({
         clientID: 'faf8536f6684556c4a15623c70a54698',
         callbackURL: 'http://localhost:3000/app/social/kakao/callback',},
     async (accessToken, refreshToken, profile, done) => { console.log(accessToken); console.log(profile); }));
 
+/*
 
+
+passport.use('apple-login',new AppleStrategy(
+    {
+        clientID: "com.senya.dialogue",
+        teamID:"69F5355JYF",
+        callbackURL: "http://localhost:3000/app/login/apple/callback",
+        keyID: "V9JQU3C66Z",
+        privateKeyLocation: 'AuthKey_V9JQU3C66Z.p8',
+        passReqToCallback: true
+
+    },function(req, accessToken, refreshToken, idToken, profile, cb) {
+        // The idToken returned is encoded. You can use the jsonwebtoken library via jwt.decode(idToken)
+        // to access the properties of the decoded idToken properties which contains the user's
+        // identity information.
+        // Here, check if the idToken.sub exists in your database!
+        // idToken should contains email too if user authorized it but will not contain the name
+        // `profile` parameter is REQUIRED for the sake of passport implementation
+        // it should be profile in the future but apple hasn't implemented passing data
+        // in access token yet https://developer.apple.com/documentation/sign_in_with_apple/tokenresponse
+        cb(null, idToken);
+    }));*/
+
+
+passport.use('apple-login',new AppleStrategy(
+    {
+        clientID: "com.sen.dialogue",
+        teamID:"69F5355JYF",
+        callbackURL: "https://dev.senya.today/app/login/apple/callback",
+        keyID: "V9JQU3C66Z",
+        privateKeyLocation: './AuthKey_V9JQU3C66Z.p8',
+        passReqToCallback: true
+
+    },function(req, accessToken, refreshToken, idToken, profile, cb) {
+        console.log(profile);
+        console.log(cb);
+        // The idToken returned is encoded. You can use the jsonwebtoken library via jwt.decode(idToken)
+        // to access the properties of the decoded idToken properties which contains the user's
+        // identity information.
+        // Here, check if the idToken.sub exists in your database!
+        // idToken should contains email too if user authorized it but will not contain the name
+        // `profile` parameter is REQUIRED for the sake of passport implementation
+        // it should be profile in the future but apple hasn't implemented passing data
+        // in access token yet https://developer.apple.com/documentation/sign_in_with_apple/tokenresponse
+        cb(null, idToken);
+    }));
+
+
+
+    //async (accessToken, refreshToken, profile, done) => { console.log(accessToken); console.log(profile); }));
 
 module.exports = {
     socialAuth: async (req,res)=>{
@@ -21,7 +75,9 @@ module.exports = {
             const keyTwo = crypto.randomBytes(256).toString('base64').substr(50,10);
             const password =keyOne + keyTwo;
 
-            const signUpResponse = await userService.createUser(email,password,'010456789',user.nickname,'1999-04-02');
+            const signUpResponse = await userService.createUser(email,password,user.nickname,email);
+
+
             return res.send(signUpResponse);
 
         }
