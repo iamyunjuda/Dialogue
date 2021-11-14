@@ -183,11 +183,20 @@ exports.getTeamList = async function (userId) {
 
         for(var i=0;i<getTeamList.length;i++){
             const getTeamMemberNumbers = await teamDao.getTeamMemberNumbers(connection,getTeamList[i].teamId);
+            console.log("check1",getTeamList[i].teamId);
+
             const getTeamName =await teamDao.getTeamName(connection,getTeamList[i].teamId);
+            console.log("check2",getTeamName);
             const getDueDate = await teamDao.getTeamDueDate(connection,getTeamList[i].teamId);
-            getTeamList[i].numOfMembers = getTeamMemberNumbers.numOfMember;
-            getTeamList[i].teamName = getTeamName.teamName;
-            getTeamList[i].timeLeft =getDueDate.Time;
+            console.log("check3");
+            try{
+                getTeamList[i].numOfMembers = getTeamMemberNumbers.numOfMember;
+                getTeamList[i].teamName = getTeamName.teamName;
+                getTeamList[i].timeLeft =getDueDate.Time;
+            }
+            catch(err){continue;}
+
+
         }
 
         await connection.commit();

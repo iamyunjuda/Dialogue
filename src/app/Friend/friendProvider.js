@@ -173,3 +173,15 @@ exports.getFriendSearchListWithoutName = async function (userId) {
     return searchFriendResult;
 
 };
+
+exports.friendRequestList = async function (userId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+
+    const getFriendRequestResult = await friendDao.getFriendRequest(
+        connection,
+        userId
+    );
+    connection.release();
+
+    return getFriendRequestResult;
+};

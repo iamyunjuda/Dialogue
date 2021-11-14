@@ -52,7 +52,7 @@ exports.postUsers = async function (req, res) {
 
     // 기타 등등 - 추가하기
 
-
+console.log(userId);
     const signUpResponse = await userService.createUser(
         userEmail, userPassword, userName,userId
     );

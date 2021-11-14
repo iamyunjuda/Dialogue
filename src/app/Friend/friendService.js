@@ -21,9 +21,13 @@ exports.retrieveFriendRequest = async function (userId, friendName) {
         //friendName -> userId
 
         const friendNameExchange = await friendProvider.friendNameExchange(friendName);
-        //console.log(friendNameExchange);
+        console.log(friendNameExchange,"adfadf");
         if(friendNameExchange == undefined){
             return response(baseResponse.FRIEND_NOT_EXIST);
+        }
+        if(friendNameExchange.userId == userId) {
+
+            return response(baseResponse.FRIEND_REQUEST_NOT_POSSIBLE);
         }
 
         const friendUserId = friendNameExchange.userId;
@@ -326,3 +330,75 @@ exports.retrieveSearchFriend = async function (userId,friendName) {
 
 
 };
+exports.retrieveFriendRequestRefuse = async function (userId,friendRequestId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+
+    try{
+        await connection.beginTransaction();
+
+        //활성화된 유저인지 확인
+        const userCheckRows = await friendProvider.userCheck(userId);
+        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+
+        const params = [userId,friendRequestId];
+        const friendRequest = await friendDao.friendRequestPatch(connection,params);
+
+
+
+        await connection.commit();
+        connection.release();
+        return response(baseResponse.SUCCESS);
+
+
+
+
+
+    }
+    catch (err){
+
+        await connection.rollback();
+        connection.release();
+        logger.error(`App - postSchedule Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+
+    }
+
+
+};
+
+
+exports.retrieveFriendRequestList = async function (userId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+
+    try{
+        await connection.beginTransaction();
+
+        //활성화된 유저인지 확인
+        const userCheckRows = await friendProvider.userCheck(userId);
+        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+
+        const friendRequestList = await friendProvider.friendRequestList(userId);
+
+
+
+            await connection.commit();
+            connection.release();
+            return response(baseResponse.SUCCESS,friendRequestList);
+
+
+
+
+
+    }
+    catch (err){
+
+        await connection.rollback();
+        connection.release();
+        logger.error(`App - postSchedule Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+
+    }
+
+
+};
+
