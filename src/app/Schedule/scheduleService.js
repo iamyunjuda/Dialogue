@@ -877,9 +877,9 @@ exports.retrieveTeamScheduleStatusPatch = async function (teamScheduleId, userId
             return response(baseResponse.SCHEDULE_CHANGE_NOT_ALLOWED);
         }
 
+        const teamScheduleIdInt = parseInt(teamScheduleId);
 
-
-        const patchScheduleStatus =  await scheduleDao.patchTeamScheduleStatus(connection,teamScheduleId);
+        const patchScheduleStatus =  await scheduleDao.patchTeamScheduleStatus(connection,teamScheduleIdInt);
 
 
 

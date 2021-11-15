@@ -53,7 +53,7 @@ exports.patchFriendRequestRefuse = async function (req, res) {
 
     const userIdFromJWT = req.verifiedToken.userId;
 
-    const {friendRequestId} = req.query;
+    const {friendRequestId} = req.body;
 
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (userIdFromJWT != userId) {

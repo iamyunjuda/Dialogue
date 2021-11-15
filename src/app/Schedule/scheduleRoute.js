@@ -34,6 +34,8 @@ module.exports = function(app){
     app.patch('/app/userIds/:userId/teamschedules/names',jwtMiddleware, schedule.patchTeamScheduleName);
     //팀 스케줄 시간 요일 수정
     app.patch('/app/userIds/:userId/teamschedules/times',jwtMiddleware, schedule.patchTeamScheduleTime);
+
+
     //팀 스케줄 삭제
     app.patch('/app/userIds/:userId/teamschedules/states',jwtMiddleware, schedule.patchTeamScheduleStatus);
 
