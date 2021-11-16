@@ -93,13 +93,13 @@ exports.getUserPassword = async function (userId,password) {
 
   if(getUserPasswordResult[0].count != 1){
 
-    return errResponse(baseResponse.SIGNIN_PASSWORD_EMPTY);
+    return errResponse(baseResponse.PASSWORD_NOT_MATCH);
   }
 
 
   connection.release();
 
-  return getUserPasswordResult;
+  return errResponse(baseResponse.SUCCESS);
 };
 
 
