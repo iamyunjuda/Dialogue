@@ -263,7 +263,19 @@ async function checkTheyAreFriend(connection, params) {
 
     return scheduleRows[0];
 }
+async function selectTeamSchedule(connection, teamId) {
+    const selectTeamScheduleQuery = `
 
+        select teamScheduleId, courseName, startTimeHour, startTimeMin, endTimeHour, endTimeMin, courseDay
+        From TeamSchedule where teamId=? and status ='ACTIVATED';
+
+
+
+    `;
+    const [scheduleRows] = await connection.query(selectTeamScheduleQuery,teamId);
+
+    return scheduleRows;
+}
 
 
 
@@ -292,5 +304,6 @@ module.exports = {
     updateTeamScheduleName,
     patchScheduleStatus,
     checkTheyAreFriend,
+    selectTeamSchedule,
 
 };

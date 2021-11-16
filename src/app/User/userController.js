@@ -227,24 +227,28 @@ exports.getUserPassword = async function (req, res) {
     }
     if(!password){
 
-        return res.send(errResponse(baseResponse.SIGNIN_PASSWORD_EMPTY));
+        return res.send(errResponse(baseResponse.SIGNUP_PASSWORD_EMPTY));
     }
 
     const getUserPassword = await userProvider.getUserPassword(userId,password);
-    if(getUserPassword[0].count ==1){
-        const hello ={};
-        hello.result ="correct";
-        return res.send(hello);
+
+    console.log(getUserPassword,"ee11");
+
+    //if(getUserPassword[0].count ==1){
+      //  const hello ={};
+        //hello.result ="correct";
+        //return res.send(hello);
 
 
-    }
-    else{
-        const hello ={};
-        hello.result ="wrong";
-        return res.send(hello);
+    //}
+    //else{
+      //  const hello ={};
+        //hello.result ="wrong";
+        //return res.send(hello);
 
 
-    }
+    //}
+    return res.send(getUserPassword);
 
 
 };

@@ -128,6 +128,62 @@ exports.retrieveSchedulePost = async function (userId, startTime, endTime, cours
 
 
 };
+exports.retrieveTeamScheduleGet = async function (userId,teamId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    try{
+
+
+        await connection.beginTransaction();
+
+
+        //활성화된 유저인지 확인
+        const userCheckRows = await scheduleProvider.userCheck(userId);
+        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+
+
+       // const getSchedule =[];
+        const getSchedule = await scheduleProvider.getTeamSchedules(teamId);
+        console.log(getSchedule,"aaa");
+       // getSchedule.push(getSchedules);
+        //console.log(getSchedule.length,"ccc");
+        if(getSchedule == undefined ){
+            connection.release();
+            return response(baseResponse.SUCCESS,[]);
+
+        }
+
+        console.log(getSchedule,"ccc");
+
+            for (var i = 0; i < getSchedule.length; i++) {
+                getSchedule[i].teamScheduleId = stringify(getSchedule[i].teamScheduleId);
+                const startTime = (getSchedule[i].startTimeHour) + ':' + (getSchedule[i].startTimeMin);
+                const endTime = (getSchedule[i].endTimeHour) + ':' + (getSchedule[i].endTimeMin);
+
+                getSchedule[i].startTime = startTime;
+                getSchedule[i].endTime = endTime;
+                delete getSchedule[i].startTimeHour;
+                delete getSchedule[i]["startTimeMin"];
+                delete getSchedule[i]['endTimeHour'];
+                delete getSchedule[i]['endTimeMin'];
+
+            }
+            await connection.commit();
+            connection.release();
+
+            return response(baseResponse.SUCCESS, getSchedule);
+
+    }
+    catch (err){
+
+        await connection.rollback();
+        connection.release();
+        logger.error(`App - postSchedule Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+
+    }
+
+
+};
 
 exports.retrieveScheduleGet = async function (userId) {
     const connection = await pool.getConnection(async (conn) => conn);
@@ -142,7 +198,11 @@ exports.retrieveScheduleGet = async function (userId) {
         if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
         const getSchedule = await scheduleProvider.getSchedule(userId);
 
+        if(getSchedule ==0 ){
+            connection.release();
+            return response(baseResponse.SUCCESS,[]);
 
+        }
         for(var i=0;i<getSchedule.length;i++){
             getSchedule[i].scheduleId = stringify(getSchedule[i].scheduleId);
            const startTime = (getSchedule[i].startTimeHour)+':'+(getSchedule[i].startTimeMin);
