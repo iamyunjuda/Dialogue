@@ -118,6 +118,10 @@ exports.getFriendList = async function (userId) {
     console.log(getFriendListResult,111);
     //목록에 각각의 최신 업데이트 내용
     if(getFriendListResult == undefined)return;
+    else if(getFriendListResult.length==0){
+        return [];
+
+    }
     else{
         console.log(getFriendListResult[0].targetId,1111);
     for(var i=0;i<getFriendListResult.length;i++){

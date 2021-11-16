@@ -15,7 +15,11 @@ module.exports = function(app){
     app.patch('/app/userIds/:userId/schedules',jwtMiddleware, schedule.patchSchedule);
 
     // 스케줄 합치기
-    app.get('/app/userIds/:userId/teamIds/:teamId/teamschedules',jwtMiddleware, schedule.getAllMembersSchedules);
+    app.get('/app/userIds/:userId/teamIds/:teamId/schedules',jwtMiddleware, schedule.getAllMembersSchedules);
+
+    // 팀 스케줄 불러오기
+    app.get('/app/userIds/:userId/teamIds/:teamId/teamschedules',jwtMiddleware, schedule.getTeamSchedules);
+
 
     //해당 유저 스케줄 가져오기(user정보 없이 - 임시)
     app.get('/app/friendIds/:friendId/schedules', jwtMiddleware,schedule.getUserSchedule);

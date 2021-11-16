@@ -166,15 +166,26 @@ exports.teamCheck= async function(teamId) {
 
 };
 
-exports.getTeamSchedule = async function (teamId) {
+exports.getTeamSchedules = async function (teamId) {
     const connection = await pool.getConnection(async (conn) => conn);
-    const selectUserScheduleResult = await scheduleDao.selectUserSchedule(
+    const selectTeamScheduleResult = await scheduleDao.selectTeamSchedule(
         connection,
         teamId
     );
 
     connection.release();
-    return selectUserScheduleResult;
+    return selectTeamScheduleResult;
+};
+
+exports.getTeamSchedule = async function (teamId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const selectTeamScheduleResult = await scheduleDao.selectUserSchedule(
+        connection,
+        teamId
+    );
+
+    connection.release();
+    return selectTeamScheduleResult;
 };
 exports.getTeamName = async function (teamId) {
     const connection = await pool.getConnection(async (conn) => conn);

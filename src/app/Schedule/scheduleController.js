@@ -74,7 +74,25 @@ exports.getSchedule = async function (req, res) {
 
     return res.send(scheduleGet);
 };
+exports.getTeamSchedules = async function (req, res) {
 
+    /**
+     * path Variable :userId
+     */
+
+    const userIdFromJWT = req.verifiedToken.userId;
+    const userId = req.params.userId;
+    const teamId =req.params.teamId;
+    if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+    if (userIdFromJWT != userId) {
+        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+    }
+    if(!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
+    const teamScheduleGet = await scheduleService.retrieveTeamScheduleGet(
+        userId,teamId);
+
+    return res.send(teamScheduleGet);
+};
 
 /**
  * API No. 9
