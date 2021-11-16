@@ -2,6 +2,9 @@ const { pool } = require("../../../config/database");
 const { logger } = require("../../../config/winston");
 
 const userDao = require("./userDao");
+const crypto = require("crypto");
+const {errResponse} = require("../../../config/response");
+const baseResponse = require("../../../config/baseResponseStatus");
 
 // Provider: Read 비즈니스 로직 처리
 
@@ -71,4 +74,32 @@ exports.updateUserStateInfo = async function (userId, status) {
 
   return updateUserAccountStatusResult;
 };
+
+
+exports.getUserPassword = async function (userId,password) {
+  const connection = await pool.getConnection(async (conn) => conn);
+
+  const hashedPassword = await crypto
+      .createHash("sha512")
+      .update(password)
+      .digest("hex");
+  console.log(userId);
+  const params = [userId, hashedPassword];
+  console.log(hashedPassword);
+  console.log(password);
+
+  const getUserPasswordResult = await userDao.getUserPasswordCheck(connection, params);
+  console.log(getUserPasswordResult[0].count,"eee");
+
+  if(getUserPasswordResult[0].count != 1){
+
+    return errResponse(baseResponse.SIGNIN_PASSWORD_EMPTY);
+  }
+
+
+  connection.release();
+
+  return getUserPasswordResult;
+};
+
 

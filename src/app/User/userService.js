@@ -36,10 +36,9 @@ exports.createUser = async function (email, password, nickname,userId) {
 
         const insertUserInfoParams = [email, hashedPassword, nickname,userId];
 
-        console.log(userId);
+    console.log(userId);
         const userIdResult = await userDao.insertUserInfo(connection, insertUserInfoParams);
         console.log(`추가된 회원 : ${userIdResult[0].insertId}`)
-
 
         await connection.commit();
         connection.release();
@@ -159,3 +158,5 @@ exports.editUserState = async function (userId, status) {
         return errResponse(baseResponse.DB_ERROR);
     }
 }
+
+

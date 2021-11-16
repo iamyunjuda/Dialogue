@@ -207,6 +207,48 @@ exports.patchUsersStatus = async function (req, res) {
 
 
 
+/**
+ * API No. 5
+ * API Name : 회원 상태 바꾸기
+ * [PATCH] /app/users/:userId
+ * path variable : userId
+ * body : nickname
+ */
+exports.getUserPassword = async function (req, res) {
+
+    // jwt - userId, path variable :userId
+
+    const userIdFromJWT = req.verifiedToken.userId
+    const userId = req.params.userId;
+    const {password} = req.body;
+    //WITHDRAWAL, UNACTIVATED
+    if (userIdFromJWT != userId) {
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+    }
+    if(!password){
+
+        return res.send(errResponse(baseResponse.SIGNIN_PASSWORD_EMPTY));
+    }
+
+    const getUserPassword = await userProvider.getUserPassword(userId,password);
+    if(getUserPassword[0].count ==1){
+        const hello ={};
+        hello.result ="correct";
+        return res.send(hello);
+
+
+    }
+    else{
+        const hello ={};
+        hello.result ="wrong";
+        return res.send(hello);
+
+
+    }
+
+
+};
+
 
 
 
