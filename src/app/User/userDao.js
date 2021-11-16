@@ -90,6 +90,17 @@ async function updateUserAccountStatus(connection,params) {
   const updateUserRow = await connection.query(updateUserQuery,params);
   return updateUserRow[0];
 }
+async function getUserPasswordCheck(connection,params) {
+  const getUserPasswordCheckQuery = `
+    select count(userId) as count from User where userId =? and userPassword=? and status ='ACTIVATED';
+
+
+  `;
+  const updateUserRow = await connection.query(getUserPasswordCheckQuery,params);
+  return updateUserRow[0];
+}
+
+
 module.exports = {
   selectUser,
   selectUserEmail,
@@ -99,4 +110,7 @@ module.exports = {
   selectUserAccount,
   updateUserInfo,
   updateUserAccountStatus,
+  getUserPasswordCheck,
+
+
 };

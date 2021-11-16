@@ -19,6 +19,8 @@ module.exports = function(app){
     //회원 삭제
     app.patch('/app/users/:userId/states?status=', jwtMiddleware, user.patchUsersStatus);
 
+        // 현재 비밀번호 체크하기
+    app.get('/app/users/:userId/password', jwtMiddleware, user.getUserPassword)
 
 
 };
