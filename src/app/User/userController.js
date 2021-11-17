@@ -57,6 +57,13 @@ console.log(userId);
         userEmail, userPassword, userName,userId
     );
 
+    req.session.displayname=userEmail;
+    return req.session.save(()=>{
+        return res.redirect('/user/welcome');
+    });
+
+
+
     return res.send(signUpResponse);
 };
 
@@ -88,6 +95,8 @@ exports.login = async function (req, res) {
 
 
     const signInResponse = await userService.postSignIn(userEmail, userPassword);
+
+
     //req.session.save(function(){
       //  res.redirect('/');
     //});
@@ -252,8 +261,27 @@ exports.getUserPassword = async function (req, res) {
 
 
 };
+exports.alreadyLogin = async function (req, res) {
 
 
+    return res.send(response(baseResponse.LOGIN_ALREADY_DONE));
+};
+exports.notLogin = async function (req, res) {
+
+
+    return res.send(response(baseResponse.LOGIN_NOT_DONE));
+};
+
+exports.loggedOut = async function (req, res) {
+
+
+    return res.send(response(baseResponse.LOGGED_OUT));
+};
+exports.loggedIn = async function (req, res) {
+
+
+    return res.send(response(baseResponse.LOGGED_IN));
+};
 
 
 

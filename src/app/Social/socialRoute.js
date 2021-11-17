@@ -7,6 +7,7 @@ const AppleStrategy = require('passport-apple');
 
 const bodyParser = require("body-parser");
 const fs = require('fs');
+const {Strategy: KakaoStrategy} = require("passport-kakao");
 //const AppleAuth = require('apple-auth');
 //const config = fs.readFileSync('src/app/Social/config.json');
 
@@ -41,12 +42,23 @@ passport.use('apple-login',new AppleStrategy(
 
 module.exports = function(app){
     const social = require('./socialController.js');
-/*
+    const passport =require('passport');
+    //const KakaoStrategy = require('passport-kakao').Strategy;
+
+    passport.use('kakao-login', new KakaoStrategy({
+            clientID: 'faf8536f6684556c4a15623c70a54698',
+            clientSecret: '39unbvMrBxfi6UgANWTUu1GEIPaackDy',
+            callbackURL: 'http://localhost:3000/app/social/kakao/callback',
+        },
+        async (accessToken, refreshToken, profile, done) => {   console.log(accessToken);  console.log(done); console.log(profile);}));
+
+
+
     app.get('/app/login/kakao', passport.authenticate('kakao-login',{session:false}));
-    app.get('/app/login/kakao/callback',
+    app.get('/app/social/kakao/callback',
         passport.authenticate('kakao-login',{session:false}),social.socialAuth);
 
-       */
+
 
        //let auth = new AppleAuth(config, fs.readFileSync('src/app/Social/AuthKey_V9JQU3C66Z.p8').toString(), 'text');
        app.get('/app/login/apple', passport.authenticate('apple-login'));
