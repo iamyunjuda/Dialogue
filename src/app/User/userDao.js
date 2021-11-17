@@ -51,12 +51,12 @@ async function selectUserPassword(connection, selectUserPasswordParams) {
   const selectUserPasswordQuery = `
         SELECT userEmail, userName, userPassword
         FROM User 
-        WHERE userEmail = ? AND userPassword = ?;`;
+        WHERE userEmail = ? AND userPassword = ? and status ='ACTIVATED';`;
   const selectUserPasswordRow = await connection.query(
       selectUserPasswordQuery,
       selectUserPasswordParams
   );
-
+//console.log(selectUserPasswordRow,"말안됨");
   return selectUserPasswordRow;
 }
 

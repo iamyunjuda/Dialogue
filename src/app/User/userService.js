@@ -65,7 +65,7 @@ exports.postSignIn = async function (email, password) {
         if (emailRows.length < 1) return errResponse(baseResponse.SIGNIN_EMAIL_WRONG);
 
         const selectEmail = emailRows[0].userEmail
-
+        console.log(selectEmail,"맞나???");
         // 비밀번호 확인
         const hashedPassword = await crypto
             .createHash("sha512")
@@ -74,8 +74,13 @@ exports.postSignIn = async function (email, password) {
 
         const selectUserPasswordParams = [selectEmail, hashedPassword];
         const passwordRows = await userProvider.passwordCheck(selectUserPasswordParams);
+        console.log(passwordRows.userPassword,"맞나???");
+        console.log(hashedPassword,"맞나ㄴㄴ???");
 
-        if (passwordRows[0].userPassword !== hashedPassword) {
+
+        if (passwordRows.length ==0) {
+            console.log("adsf");
+
             return errResponse(baseResponse.SIGNIN_PASSWORD_WRONG);
         }
 

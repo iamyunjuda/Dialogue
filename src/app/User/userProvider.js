@@ -56,6 +56,7 @@ exports.passwordCheck = async function (selectUserPasswordParams) {
       selectUserPasswordParams
   );
   connection.release();
+  console.log(passwordCheckResult,"asfdadsf");
   return passwordCheckResult[0];
 };
 

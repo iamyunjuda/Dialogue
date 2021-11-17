@@ -50,6 +50,10 @@ module.exports = {
     TEAM_TEAMID_EMPTY: { "isSuccess": false, "code": 2032, "message": "팀ID를 입력해주세요" },
     SCHEDULE_COURSENAME_EMPTY : { "isSuccess": false, "code": 2033, "message": "팀 일정 이름을 입력해주세요." },
     SCHEDULE_TEAMSCHEDULEID_EMPTY: { "isSuccess": false, "code": 2034, "message": "팀일정Id를 입력해주세요." },
+    LOGIN_ALREADY_DONE: { "isSuccess": false, "code": 2035, "message": "이미 로그인이 완료되었습니다." },
+    LOGGED_OUT: { "isSuccess": true, "code": 2035, "message": "로그아웃 되었습니다." },
+    LOGIN_NOT_DONE: { "isSuccess": false, "code": 2036, "message": "로그인이 되어있지 않습니다." },
+    LOGGED_IN:  { "isSuccess": true, "code": 2037, "message": "로그인 성공했습니다." },
     // Response error
     SIGNUP_REDUNDANT_EMAIL : { "isSuccess": false, "code": 3001, "message":"중복된 이메일입니다." },
     SIGNUP_REDUNDANT_NICKNAME : { "isSuccess": false, "code": 3002, "message":"중복된 닉네임입니다." },
