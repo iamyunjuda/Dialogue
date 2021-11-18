@@ -121,11 +121,11 @@ exports.postSignIn = async function (email, password) {
 
         const selectUserPasswordParams = [selectEmail, hashedPassword];
         const passwordRows = await userProvider.passwordCheck(selectUserPasswordParams);
-        console.log(passwordRows.userPassword,"맞나???");
+        console.log(passwordRows,"맞나???");
         console.log(hashedPassword,"맞나ㄴㄴ???");
 
 
-        if (passwordRows!== hashedPassword) {
+        if (passwordRows[0].userPassword!= hashedPassword) {
             console.log("adsf");
 
             return errResponse(baseResponse.SIGNIN_PASSWORD_WRONG);
@@ -153,6 +153,7 @@ exports.postSignIn = async function (email, password) {
                 subject: "userInfo",
             } // 유효 기간 365일
         );
+
         await connection.commit();
         connection.release();
         return response(baseResponse.SUCCESS, {'userId': userInfoRows[0].userId, 'jwt': token});
