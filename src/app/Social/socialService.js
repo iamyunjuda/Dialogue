@@ -7,10 +7,10 @@ const secret_config = require("../../../config/secret");
 const jwt = require("jsonwebtoken");
 const userProvider =require("../User/userProvider");
 
-exports.socialSignIn = async function(email){
-    try{
+exports.socialSignIn = async function(email) {
+    try {
         const UserRows = await userProvider.accountCheck(email);
-        if(UserRows[0].status === 'UNACTIVATED'){
+        if (UserRows[0].status === 'UNACTIVATED') {
             return errResponse(baseResponse.SIGNIN_INACTIVE_ACCOUNT)
 
         }
@@ -20,24 +20,20 @@ exports.socialSignIn = async function(email){
         let token = await jwt.sign(
             {userIdx: UserRows[0].userId,},
             secret_config.jwtsecret,
-            {expiresIn: "10m",
-                subject:"User",}
+            {
+                expiresIn: "10m",
+                subject: "User",
+            }
         );
-        return response(baseResponse.SUCCESS,{'userId':UserRows[0].userId,'jwt':token});
+        return response(baseResponse.SUCCESS, {'userId': UserRows[0].userId, 'jwt': token});
 
 
-    }catch(err){
+    } catch (err) {
         logger.error(`App -socialSignIn Service error\n:  ${err.message}\n ${JSON.stringify(err)}`);
         return errResponse(baseResponse.DB_ERROR);
 
 
     }
-
-
-
-
-
-
 
 
 }

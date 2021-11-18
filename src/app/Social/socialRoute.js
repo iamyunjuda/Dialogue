@@ -79,6 +79,9 @@ console.log(profile);
         },social.socialAuth)(req, res, next);
     });
 
+
+    app.post('/app/login/social/apple',social.userLogin);
+
             /*
             (req, res, next) => {
             (err, profile) => {

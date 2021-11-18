@@ -102,7 +102,31 @@ exports.socialAuth = async function (req, res) {
 
 
 };
+exports.userLogin = async function (req, res) {
 
+    const email = req.body.email;
+    const nickname = email.split('@');
+    const emailRows = await userProvider.emailCheck(email);
+    if(emailRows.length<1){
+
+
+        const signUpResponse = await userService.createAppleUser(email,nickname[0]);
+
+        return res.send(signUpResponse);
+
+    }
+    else{
+        const signInResponse = await socialService.socialSignIn(email);
+        return res.send(signInResponse);
+
+    }
+
+
+
+
+
+
+};
 
 
 /*
