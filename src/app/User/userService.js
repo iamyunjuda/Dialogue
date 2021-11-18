@@ -69,11 +69,28 @@ exports.createAppleUser = async function (email, nickname) {
 
 
         const userIdResult = await userDao.insertAppleUserInfo(connection, insertUserInfoParams);
-        console.log(`추가된 회원 : ${userIdResult[0].insertId}`)
-
+        console.log(`추가된 회원 : ${userIdResult[0].insertId}`);
         await connection.commit();
+        // 계정 상태 확인
+        const userInfoRows = await userProvider.accountCheck(email);
+
+        console.log(userInfoRows) ;// DB의 userId
+        console.log(userInfoRows.userId); // DB의 userId
+
+        //토큰 생성 Service
+        let token = await jwt.sign(
+            {
+                userId: userInfoRows[0].userId,
+            }, // 토큰의 내용(payload)
+            secret_config.jwtsecret, // 비밀키
+            {
+                expiresIn: "365d",
+                subject: "userInfo",
+            } // 유효 기간 365일
+        );
+
         connection.release();
-        return response(baseResponse.SUCCESS);
+        return response(baseResponse.SUCCESS,{'userId': userInfoRows[0].userId, 'jwt': token});
 
 
     } catch (err) {

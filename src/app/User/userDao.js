@@ -81,6 +81,8 @@ async function selectUserAccount(connection, email) {
       selectUserAccountQuery,
       email
   );
+  console.log(email,"here");
+  console.log(selectUserAccountRow[0],"here");
   return selectUserAccountRow[0];
 }
 
