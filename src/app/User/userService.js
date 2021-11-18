@@ -52,7 +52,37 @@ exports.createUser = async function (email, password, nickname,userId) {
         return errResponse(baseResponse.DB_ERROR);
     }
 };
+exports.createAppleUser = async function (email, nickname) {
 
+    const connection = await pool.getConnection(async (conn) => conn);
+    try {
+        // 이메일 중복 확인
+        await connection.beginTransaction();
+        const emailRows = await userProvider.emailCheck(email);
+        if (emailRows.length > 0)
+            return errResponse(baseResponse.SIGNUP_REDUNDANT_EMAIL);
+
+        // 비밀번호 암호화
+
+
+        const insertUserInfoParams = [email, nickname, nickname, 1];
+
+
+        const userIdResult = await userDao.insertAppleUserInfo(connection, insertUserInfoParams);
+        console.log(`추가된 회원 : ${userIdResult[0].insertId}`)
+
+        await connection.commit();
+        connection.release();
+        return response(baseResponse.SUCCESS);
+
+
+    } catch (err) {
+        await connection.rollback();
+        logger.error(`App - createUser Service error\n: ${err.message}`);
+        await connection.release();
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
 
 // TODO: After 로그인 인증 방법 (JWT)
 exports.postSignIn = async function (email, password) {
@@ -78,7 +108,7 @@ exports.postSignIn = async function (email, password) {
         console.log(hashedPassword,"맞나ㄴㄴ???");
 
 
-        if (passwordRows.length ==0) {
+        if (passwordRows!== hashedPassword) {
             console.log("adsf");
 
             return errResponse(baseResponse.SIGNIN_PASSWORD_WRONG);

@@ -45,7 +45,18 @@ async function insertUserInfo(connection, insertUserInfoParams) {
 
   return insertUserInfoRow;
 }
+async function insertAppleUserInfo(connection, insertUserInfoParams) {
+  const insertUserInfoQuery = `
+        INSERT INTO User(userEmail, userName, ID,social)
+        VALUES (?, ?, ?,1);
+    `;
+  const insertUserInfoRow = await connection.query(
+      insertUserInfoQuery,
+      insertUserInfoParams
+  );
 
+  return insertUserInfoRow;
+}
 // 패스워드 체크
 async function selectUserPassword(connection, selectUserPasswordParams) {
   const selectUserPasswordQuery = `
@@ -111,6 +122,6 @@ module.exports = {
   updateUserInfo,
   updateUserAccountStatus,
   getUserPasswordCheck,
-
+  insertAppleUserInfo,
 
 };
