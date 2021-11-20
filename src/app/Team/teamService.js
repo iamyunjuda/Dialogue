@@ -26,6 +26,9 @@ exports.postTeamName = async function (teamName, dueDate,userId,friendId) {
 //////
         await connection.commit();
 
+        //팀 아이디 불러오기
+        const getTeamId = await teamDao.getTeamId(connection,userId);
+
         for(var i =0 ;i < friendId.length;i++) {
             //활성화된 유저인지 확인
             // console.log(friendId[i],"asd");
