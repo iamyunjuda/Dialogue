@@ -14,7 +14,7 @@ const {connect} = require("http2");
 
 // Service: Create, Update, Delete 비즈니스 로직 처리
 
-exports.postTeamName = async function (teamName, dueDate,userId) {
+exports.postTeamName = async function (teamName, dueDate,userId,friendId) {
     const connection = await pool.getConnection(async (conn) => conn);
     try {
 
@@ -25,6 +25,7 @@ exports.postTeamName = async function (teamName, dueDate,userId) {
         const postTeamResult = await teamDao.postTeam(connection,params);
 //////
         await connection.commit();
+
         for(var i =0 ;i < friendId.length;i++) {
             //활성화된 유저인지 확인
             // console.log(friendId[i],"asd");
