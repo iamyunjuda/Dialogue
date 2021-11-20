@@ -59,7 +59,7 @@ module.exports = function(app){
                 return res.send(response(baseResponse.SIGNUP_EMAIL_EMPTY));
 
             // 길이 체크
-            if (userEmail.length > 50)
+            if (userEmail.length > 100)
                 return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
             if (userPassword.length > 20)
                 return res.send(response(baseResponse.SIGNUP_EMAIL_LENGTH));
