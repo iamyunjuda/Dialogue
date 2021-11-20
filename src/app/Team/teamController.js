@@ -28,7 +28,7 @@ exports.postTeam = async function (req, res) {
      */
 
 
-    const {teamName, dueDate} = req.body;
+    const {teamName, dueDate,friendId} = req.body;
     const userIdFromJWT = req.verifiedToken.userId
     const userId = req.params.userId;
 
@@ -36,6 +36,7 @@ exports.postTeam = async function (req, res) {
     if (userIdFromJWT != userId) {
         res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
+    if(!friendId)return res.send(errResponse(baseResponse.FRIENDID_EMPTY));
     // 빈 값 체크
     if (!teamName)
         return res.send(response(baseResponse.TEAM_NAME_EMPTY));
@@ -45,7 +46,8 @@ exports.postTeam = async function (req, res) {
     // 길이 체크
     if (teamName.length > 30)
         return res.send(response(baseResponse.TEAM_NAME_LENGTH));
-
+    if (friendId.length < 2)
+        return res.send(response(baseResponse.TEAM_NAME_LENGTH));
    // if (dueDate > 15)
       //  return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
     // 형식 체크 (by 정규표현식)
@@ -55,7 +57,7 @@ exports.postTeam = async function (req, res) {
 
 
     const postTeamNameResponse = await teamService.postTeamName(
-        teamName, dueDate,userId
+        teamName, dueDate,userId,friendId
     );
 
     return res.send(postTeamNameResponse);

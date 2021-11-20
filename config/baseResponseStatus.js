@@ -54,6 +54,9 @@ module.exports = {
     LOGGED_OUT: { "isSuccess": true, "code": 2035, "message": "로그아웃 되었습니다." },
     LOGIN_NOT_DONE: { "isSuccess": false, "code": 2036, "message": "로그인이 되어있지 않습니다." },
     LOGGED_IN:  { "isSuccess": true, "code": 2037, "message": "로그인 성공했습니다." },
+    FRIENDID_LENGTH:{ "isSuccess": false, "code": 2038, "message": "팀원은 2명 이상이어야합니다." },
+
+
     // Response error
     SIGNUP_REDUNDANT_EMAIL : { "isSuccess": false, "code": 3001, "message":"중복된 이메일입니다." },
     SIGNUP_REDUNDANT_NICKNAME : { "isSuccess": false, "code": 3002, "message":"중복된 닉네임입니다." },

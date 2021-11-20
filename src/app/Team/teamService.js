@@ -23,6 +23,21 @@ exports.postTeamName = async function (teamName, dueDate,userId) {
 
         const params =[ teamName, dueDate,userId];
         const postTeamResult = await teamDao.postTeam(connection,params);
+//////
+        await connection.commit();
+        for(var i =0 ;i < friendId.length;i++) {
+            //활성화된 유저인지 확인
+            // console.log(friendId[i],"asd");
+            const userCheckRows = await teamProvider.userCheck(friendId[i]);
+            if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+
+            const params3 = [getTeamId.teamId, friendId[i]]
+            const addTeamMembersResult = await teamDao.addTeamMembers(connection, params3);
+
+        }
+        const params2 =[getTeamId.teamId, userId];
+        const addTeamMembersResult = await teamDao.addTeamMembers(connection, params2);
+
 
         await connection.commit();
         connection.release();
