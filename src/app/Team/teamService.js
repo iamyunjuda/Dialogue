@@ -14,7 +14,7 @@ const {connect} = require("http2");
 
 // Service: Create, Update, Delete 비즈니스 로직 처리
 
-exports.postTeamName = async function (teamName, dueDate,userId) {
+exports.postTeamName = async function (teamName, dueDate,userId,friendId) {
     const connection = await pool.getConnection(async (conn) => conn);
     try {
 
@@ -23,6 +23,25 @@ exports.postTeamName = async function (teamName, dueDate,userId) {
 
         const params =[ teamName, dueDate,userId];
         const postTeamResult = await teamDao.postTeam(connection,params);
+//////
+        await connection.commit();
+
+        //팀 아이디 불러오기
+        const getTeamId = await teamDao.getTeamId(connection,userId);
+
+        for(var i =0 ;i < friendId.length;i++) {
+            //활성화된 유저인지 확인
+            // console.log(friendId[i],"asd");
+            const userCheckRows = await teamProvider.userCheck(friendId[i]);
+            if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+
+            const params3 = [getTeamId.teamId, friendId[i]]
+            const addTeamMembersResult = await teamDao.addTeamMembers(connection, params3);
+
+        }
+        const params2 =[getTeamId.teamId, userId];
+        const addTeamMembersResult = await teamDao.addTeamMembers(connection, params2);
+
 
         await connection.commit();
         connection.release();
