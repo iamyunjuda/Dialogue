@@ -20,6 +20,34 @@ exports.postTeamName = async function (teamName, dueDate,userId,friendId) {
 
 
         await connection.beginTransaction();
+        for(var i =0 ;i < friendId.length;i++) {
+            //활성화된 유저인지 확인
+            // console.log(friendId[i],"asd");
+            const userCheckRows = await teamProvider.userCheck(friendId[i]);
+            if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+
+           // const params3 = [getTeamId.teamId, friendId[i]]
+            //const addTeamMembersResult = await teamDao.addTeamMembers(connection, params3);
+
+        }
+
+        const dateInfo = dueDate.split("-");
+        //
+        var today = new Date();
+        console.log(today.getFullYear(),"asdf");
+        console.log(today.getMonth()+1 ,"asdf");
+        console.log(today.getDate(),"asdf2",dateInfo[2]);
+
+        if(today.getFullYear() !=  parseInt(dateInfo[0])){
+            return response(baseResponse.DATE_ERROR);
+        }
+        if(today.getMonth()+1 !=  parseInt(dateInfo[1])){
+            return response(baseResponse.DATE_ERROR);
+        }
+        if(today.getDate() > parseInt(dateInfo[2])){
+            return response(baseResponse.DATE_ERROR);
+        }
+
 
         const params =[ teamName, dueDate,userId];
         const postTeamResult = await teamDao.postTeam(connection,params);
@@ -30,20 +58,19 @@ exports.postTeamName = async function (teamName, dueDate,userId,friendId) {
         const getTeamId = await teamDao.getTeamId(connection,userId);
 
         for(var i =0 ;i < friendId.length;i++) {
-            //활성화된 유저인지 확인
-            // console.log(friendId[i],"asd");
-            const userCheckRows = await teamProvider.userCheck(friendId[i]);
-            if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+
 
             const params3 = [getTeamId.teamId, friendId[i]]
             const addTeamMembersResult = await teamDao.addTeamMembers(connection, params3);
 
         }
+
+
         const params2 =[getTeamId.teamId, userId];
         const addTeamMembersResult = await teamDao.addTeamMembers(connection, params2);
 
 
-        await connection.commit();
+
         connection.release();
 
         return response(baseResponse.SUCCESS);
@@ -101,7 +128,7 @@ exports.postTeamMembers = async function (userId,friendId) {
             //활성화된 유저인지 확인
           // console.log(friendId[i],"asd");
             const userCheckRows = await teamProvider.userCheck(friendId[i]);
-            if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+            if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
 
             const params = [getTeamId.teamId, friendId[i]]
             const addTeamMembersResult = await teamDao.addTeamMembers(connection, params);
