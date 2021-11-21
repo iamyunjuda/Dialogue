@@ -23,7 +23,7 @@ async function addTeamMembers(connection,params) {
 
 async function getTeamIdList(connection,userId) {
     const getTeamListQuery = `
-        select teamId from TeamInfo where userId=? and status='ACTIVATED';
+        select teamId from Team where userId=? and status='ACTIVATED';
     `;
     const [userRows] = await connection.query(getTeamListQuery,userId);
     return userRows;

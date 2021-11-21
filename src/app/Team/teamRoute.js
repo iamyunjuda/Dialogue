@@ -29,7 +29,7 @@ module.exports = function(app){
     app.patch('/app/userIds/:userId/teams/members',jwtMiddleware,team.patchTeamMembers);
 
     //27.팀 삭제
-    app.patch('/app/userIds/:userId/teams/states',jwtMiddleware,team.patchTeamStatus);
+    app.patch('/app/userIds/:userId/teams/status',jwtMiddleware,team.patchTeamStatus);
 
 
 
