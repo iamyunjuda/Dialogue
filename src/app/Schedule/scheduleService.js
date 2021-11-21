@@ -420,9 +420,10 @@ exports.retrieveAllSchedules = async function (userId, teamId) {
         console.log(getUserRows);
         //유저의 스케줄들 불러오기
         for(let j=0;j<getUserRows.length;j++){
+            console.log(getUserRows[j].userId,"ㅁㄴㅇㄹ2");
             if(getUserRows[j].userId==userId) continue;
             const getSchedule = await scheduleProvider.getSchedule(getUserRows[j].userId);
-            console.log(getSchedule);
+            console.log(getSchedule,"ㅁㄴㅇㄹ");
 
             for(let i=0;i<getSchedule.length;i++) {
                 getSchedule[i].scheduleId = stringify(getSchedule[i].scheduleId);
