@@ -46,7 +46,8 @@ exports.postTeam = async function (req, res) {
     // 길이 체크
     if (teamName.length > 30)
         return res.send(response(baseResponse.TEAM_NAME_LENGTH));
-
+ //   if (targetId.length < 2)
+     //   return res.send(response(baseResponse.FRIENDID_LENGTH));
    // if (dueDate > 15)
       //  return res.send(response(baseResponse.SIGNUP_NICKNAME_LENGTH));
     // 형식 체크 (by 정규표현식)

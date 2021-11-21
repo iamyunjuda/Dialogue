@@ -226,7 +226,7 @@ exports.getTeamList = async function (userId) {
 
         //팀 아이디 불러오기
         const getTeamList = await teamDao.getTeamIdList(connection,userId);
-
+        console.log(getTeamList);
         for(var i=0;i<getTeamList.length;i++){
             const getTeamMemberNumbers = await teamDao.getTeamMemberNumbers(connection,getTeamList[i].teamId);
             console.log("check1",getTeamList[i].teamId);
