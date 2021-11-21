@@ -84,7 +84,7 @@ module.exports = {
     TEAM_TEAMID_NOT_EXIST :{ "isSuccess": false, "code": 3023, "message": "해당 TEAMID가 존재하지 않습니다." },
     TEAM_NOT_ALLOWED  :{ "isSuccess": false, "code": 3024, "message": "해당 유저는 팀정보 변경 권한이 없습니다." },
     PASSWORD_NOT_MATCH:{ "isSuccess": false, "code": 3025, "message": "잘못된 비밀번호입니다." },
-
+    DATE_ERROR:{ "isSuccess": false, "code": 3026, "message": "날짜가 잘못되었습니다." },
 
     DB_ERROR : { "isSuccess": false, "code": 4000, "message": "데이터 베이스 에러"},
     SERVER_ERROR : { "isSuccess": false, "code": 4001, "message": "서버 에러"},
