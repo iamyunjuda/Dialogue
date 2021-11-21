@@ -10,6 +10,7 @@ const {errResponse} = require("../../../config/response");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const {connect} = require("http2");
+//const friendProvider = require("./friendProvider");
 
 
 // Service: Create, Update, Delete 비즈니스 로직 처리
@@ -31,22 +32,31 @@ exports.postTeamName = async function (teamName, dueDate,userId,friendId) {
 
         }
 
-        const dateInfo = dueDate.split("-");
-        //
-        var today = new Date();
-        console.log(today.getFullYear(),"asdf");
-        console.log(today.getMonth()+1 ,"asdf");
-        console.log(today.getDate(),"asdf2",dateInfo[2]);
+        if(dueDate == "infinite"){
+            dueDate = "2099-12-31";
 
-        if(today.getFullYear() !=  parseInt(dateInfo[0])){
-            return response(baseResponse.DATE_ERROR);
         }
-        if(today.getMonth()+1 !=  parseInt(dateInfo[1])){
-            return response(baseResponse.DATE_ERROR);
+       else{
+            const dateInfo = dueDate.split("-");
+            //
+            var today = new Date();
+            const newDate= today.getFullYear()+"-"+(today.getMonth()+1)+"-"+today.getDate();
+
+            console.log(dueDate,newDate,"ㅁㄴㅇㄹ");
+
+            if(dueDate >= newDate){
+                console.log("true");
+            }
+            else{
+
+                console.log("falsase");
+                return response(baseResponse.DATE_ERROR);
+            }
+
+
+
         }
-        if(today.getDate() > parseInt(dateInfo[2])){
-            return response(baseResponse.DATE_ERROR);
-        }
+
 
 
         const params =[ teamName, dueDate,userId];
@@ -111,7 +121,7 @@ exports.patchTeamName = async function (teamId, teamName, dueDate,userId) {
 
 
 
-exports.postTeamMembers = async function (userId,friendId) {
+exports.postTeamMembersWithTargetId = async function (teamId,userId,friendId) {
     const connection = await pool.getConnection(async (conn) => conn);
     try {
 
@@ -119,22 +129,62 @@ exports.postTeamMembers = async function (userId,friendId) {
         //const params =[ teamName, dueDate];
 
         //팀 아이디 불러오기
-        const getTeamId = await teamDao.getTeamId(connection,userId);
+       // const getTeamId = await teamDao.getTeamId(connection,userId);
 
         //팀원 추가하기
         //나 팀원으로 추가하기
-
+    console.log(teamId,"seeeeee");
         for(var i =0 ;i < friendId.length;i++) {
             //활성화된 유저인지 확인
           // console.log(friendId[i],"asd");
             const userCheckRows = await teamProvider.userCheck(friendId[i]);
             if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
 
-            const params = [getTeamId.teamId, friendId[i]]
+            const params = [teamId, friendId[i]]
             const addTeamMembersResult = await teamDao.addTeamMembers(connection, params);
 
         }
-        const params =[getTeamId.teamId, userId];
+        //const params =[getTeamId.teamId, userId];
+      //  const addTeamMembersResult = await teamDao.addTeamMembers(connection, params);
+
+        await connection.commit();
+
+        connection.release();
+
+        return response(baseResponse.SUCCESS);
+
+    } catch (err) {
+        logger.error(`App - editUser Service error\n: ${err.message}`);
+        await connection.rollback();
+        connection.release();
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
+
+exports.postTeamMembersWithMemberId = async function (teamId,userId,memberId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    try {
+
+        await connection.beginTransaction();
+        //const params =[ teamName, dueDate];
+
+        //팀 아이디 불러오기
+    //    const getTeamId = await teamDao.getTeamId(connection,userId);
+  //활성화된 유저인지 확인
+        // console.log(friendId[i],"asd");
+
+        const exchangeMemberIdTofriendId = await teamProvider.getUserId(memberId);
+
+        const friendId = exchangeMemberIdTofriendId;
+        console.log("hi",friendId,"here");
+console.log("----------------");
+        const userCheckRows = await teamProvider.userCheck(friendId);
+        console.log("hi","here",userCheckRows);
+
+
+        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+
+        const params = [teamId, friendId];
         const addTeamMembersResult = await teamDao.addTeamMembers(connection, params);
 
         await connection.commit();
@@ -150,6 +200,7 @@ exports.postTeamMembers = async function (userId,friendId) {
         return errResponse(baseResponse.DB_ERROR);
     }
 };
+
 exports.getTeamMembers = async function (userId,teamId) {
     const connection = await pool.getConnection(async (conn) => conn);
     try {
@@ -182,6 +233,48 @@ exports.getTeamMembers = async function (userId,teamId) {
         return errResponse(baseResponse.DB_ERROR);
     }
 };
+
+
+
+exports.getTeamMembersIdWithMemberId = async function (userId,memberId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+
+    try {
+        console.log(memberId);
+        await connection.beginTransaction();
+
+        const exchangeMemberIdTofriendId = await teamProvider.getUserId(memberId);
+
+
+       // console.log(exchangeMemberIdTofriendId);
+        if(exchangeMemberIdTofriendId == undefined) return response(baseResponse.USER_USERID_NOT_EXIST);
+
+        const friendId = exchangeMemberIdTofriendId.userId;
+
+        const userCheckRows = await teamProvider.userCheck(friendId);
+        //console.log("hi","here",userCheckRows);
+
+
+        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+    const params =[ userId, friendId];
+        const getFriendListRows = await teamProvider.getFriendId(params);
+
+        console.log(getFriendListRows,"ssdfasd");
+
+        await connection.commit();
+        connection.release();
+        return response(baseResponse.SUCCESS,getFriendListRows);
+
+
+
+    }catch (err) {
+        logger.error(`App - editUser Service error\n: ${err.message}`);
+        await connection.rollback();
+        connection.release();
+        return errResponse(baseResponse.DB_ERROR);
+    }};
+
+
 
 exports.patchTeamMembers = async function (teamId,userId,friendId) {
     const connection = await pool.getConnection(async (conn) => conn);

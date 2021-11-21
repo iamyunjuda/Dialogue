@@ -11,7 +11,7 @@ module.exports = function(app){
 
     //16. 팀 만들기
     app.post('/app/userIds/:userId/teams',jwtMiddleware,team.postTeam);
-
+    app.get('/app/userIds/:userId/memberIds',jwtMiddleware,team.getTeamMemberId);
     //17. 팀에 친구 추가하기
    app.post('/app/userIds/:userId/teams/members',jwtMiddleware,team.postTeamMembers);
 

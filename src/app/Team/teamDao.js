@@ -46,6 +46,8 @@ async function getTeamDueDate(connection,teamId) {
     const getTeamDueDateQuery = `
         select teamId,
                case
+                   when TIMESTAMPDIFF(hour,NOW(),dueDate) < 0
+                        then '무기한'
                    when TIMESTAMPDIFF(hour,NOW(),dueDate) <24 and  TIMESTAMPDIFF(hour,NOW(),dueDate) >0
                        then concat(TIMESTAMPDIFF(hour,NOW(),dueDate),'시간')
                    when TIMESTAMPDIFF(minute,NOW(),dueDate) <60 and TIMESTAMPDIFF(minute,NOW(),dueDate) >60
@@ -63,16 +65,19 @@ async function getTeamDueDate(connection,teamId) {
 
 async function selectUserCheck(connection, userId) {
     const selectUserCheckQuery = `
-                
-            select count(userId) as count from User where userId= ? and status='ACTIVATED'
+
+        select count(userId) as gount from User where userId= ? and status = 'ACTIVATED';
+
                 `;
+    console.log("dk anjsep",userId);
     const [userRows] = await connection.query(selectUserCheckQuery,userId);
+    console.log("dk 2",userRows[0]);
     return userRows[0];
 }
 async function checkTeamIdExist(connection, teamId) {
     const checkTeamIdExistQuery = `
 
-        select teamId, userId from Team where teamId=? and status= 'ACTIVATED';
+        select teamId, userId from Team where teamId=? and status = 'ACTIVATED';
                 `;
     const [userRows] = await connection.query(checkTeamIdExistQuery,teamId);
     return userRows;
@@ -121,6 +126,26 @@ async function patchTeamStatus(connection, teamId) {
     console.log(userRows,"here");
     return userRows;
 }
+async function selectUserId(connection, memberId) {
+    const selectUserIdQuery = `
+        select userId from User where ID = ? and status = 'ACTIVATED';
+
+    `;
+   // console.log(teamId,"here");
+    const [userRows] = await connection.query(selectUserIdQuery,memberId);
+    console.log(userRows,"memberId");
+    return userRows;
+}
+
+
+async function selectUserInfo(connection, params) {
+    const getFriendListQuery = `
+        select friendId, targetId, friendName from Friend where userId= ? and targetId=? and status ='ACTIVATED';
+    `;
+    const [friendRows] = await connection.query(getFriendListQuery,params);
+    return friendRows;
+}
+
 
 module.exports = {
     postTeam,
@@ -137,6 +162,6 @@ module.exports = {
     patchTeamMembers,
     checkTeamId,
     patchTeamStatus,
-
-
+    selectUserId,
+    selectUserInfo
 };

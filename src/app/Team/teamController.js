@@ -72,28 +72,71 @@ exports.postTeamMembers = async function (req, res) {
     /**
      * Body: friendId
      */
-    const {targetId} = req.body;
+    const {teamId,targetId, memberId} = req.body;
 
     const userIdFromJWT = req.verifiedToken.userId
     const userId = req.params.userId;
+    if(!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
 
-    if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+    console.log(teamId,targetId, memberId,"asf");
+    if (!userId && !memberId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (userIdFromJWT != userId) {
         res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
     // 길이 체크
-    if (targetId.length==0)
-        return res.send(response(baseResponse.ADD_MEMBER));
+    //if (targetId.length==0)
+    //  return res.send(response(baseResponse.ADD_MEMBER));
+
+    if (!memberId) {
+        console.log("here");
+        const postTeamNameResponse = await teamService.postTeamMembersWithTargetId(
+           teamId, userId, targetId
+        );
+        return res.send(postTeamNameResponse);
+    } else {
+
+
+        const postTeamNameResponse = await teamService.postTeamMembersWithMemberId(
+            teamId,userId, memberId
+        );
+
+        return res.send(postTeamNameResponse);
+    }
+
+}
+
+
+exports.getTeamMemberId = async function (req, res) {
+
+    /**
+     * Body: friendId
+     */
+    const {memberId} = req.query;
+
+    const userIdFromJWT = req.verifiedToken.userId
+    const userId = req.params.userId;
+    if(!memberId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+
+    if (userIdFromJWT != userId) {
+        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+    }
+    // 길이 체크
+    //if (targetId.length==0)
+    //  return res.send(response(baseResponse.ADD_MEMBER));
 
 
 
 
-    const postTeamNameResponse = await teamService.postTeamMembers(
-        userId,targetId
-    );
+    const getMemberIdResponse = await teamService.getTeamMembersIdWithMemberId(
+           userId, memberId
+        );
 
-    return res.send(postTeamNameResponse);
-};
+        return res.send(getMemberIdResponse);
+
+
+}
+
+
 
 /**
  * API No. 16
