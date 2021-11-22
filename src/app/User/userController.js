@@ -196,13 +196,14 @@ exports.patchUsersStatus = async function (req, res) {
     const userIdFromJWT = req.verifiedToken.userId
 
     const userId = req.params.userId;
-    const {status} = req.query.status;
+    const {status} = req.query;
 
 
 
     //WITHDRAWAL, UNACTIVATED
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+
     } else {
         if (!status) return res.send(errResponse(baseResponse.USER_STATUS_EMPTY));
 

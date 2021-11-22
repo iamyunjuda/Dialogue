@@ -276,7 +276,7 @@ exports.searchFriendByName = async function (req, res) {
 exports.getFriendRequestList = async function (req, res) {
     const userId = req.params.userId;
     const userIdFromJWT = req.verifiedToken.userId;
-    const friendName = req.query.friendName;
+    //const friendName = req.query.friendName;
 
 
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));

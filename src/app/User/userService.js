@@ -161,7 +161,10 @@ exports.postSignIn = async function (email, password) {
         return response(baseResponse.SUCCESS, {'userId': userInfoRows[0].userId, 'jwt': token});
 
     } catch (err) {
+        await connection.rollback();
+
         logger.error(`App - postSignIn Service error\n: ${err.message} \n${JSON.stringify(err)}`);
+        connection.release();
         return errResponse(baseResponse.DB_ERROR);
     }
 };
