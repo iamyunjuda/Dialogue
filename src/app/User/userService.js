@@ -36,7 +36,7 @@ exports.createUser = async function (email, password, nickname,userId) {
 
         const insertUserInfoParams = [email, hashedPassword, nickname,userId];
 
-    console.log(userId);
+        console.log(userId);
         const userIdResult = await userDao.insertUserInfo(connection, insertUserInfoParams);
         console.log(`추가된 회원 : ${userIdResult[0].insertId}`)
 
@@ -106,9 +106,11 @@ exports.postSignIn = async function (email, password) {
     const connection = await pool.getConnection(async (conn) => conn);
 
     try {
+        console.log(1);
         await connection.beginTransaction();
         // 이메일 여부 확인
         const emailRows = await userProvider.emailCheck(email);
+
         if (emailRows.length < 1) return errResponse(baseResponse.SIGNIN_EMAIL_WRONG);
 
         const selectEmail = emailRows[0].userEmail
@@ -172,10 +174,13 @@ exports.editUser = async function (userId, userName, userPassword) {
 
         const userCheckRows = await friendProvider.userCheck(userId);
         if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        const hashedPassword = await crypto
+            .createHash("sha512")
+            .update(userPassword)
+            .digest("hex");
 
 
-
-        const params = [userName, userPassword,userId];
+        const params = [userName, hashedPassword,userId];
 
         const editUserResult = await userDao.updateUserInfo(connection, params);
         await connection.commit();

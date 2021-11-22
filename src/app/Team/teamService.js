@@ -340,6 +340,7 @@ exports.getTeamList = async function (userId) {
 
         await connection.commit();
 
+
         connection.release();
 
         return response(baseResponse.SUCCESS,getTeamList);
