@@ -183,7 +183,8 @@ async function getFriendList3(connection, params) {
 async function getFriendRequest(connection, userId) {
     const getFriendRequestQuery = `
 
-        select friendRequestId, U.userName from (FriendRequest F inner join User U on F.targetId = U.userId) where F.userId= ? and F.status ='ACTIVATED';
+
+        select friendRequestId, U.userName from (FriendRequest F inner join User U on F.targetId = U.userId) where U.userId= ? and F.status ='ACTIVATED';
 
     `;
     const [friendRows] = await connection.query(getFriendRequestQuery,userId);

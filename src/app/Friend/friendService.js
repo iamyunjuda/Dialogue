@@ -89,27 +89,33 @@ exports.retrievePostFriendRequest = async function (userId, friendRequestId) {
         //userID와 targetId 불러오기
         const getUserIds = await friendProvider.getFriendIds(friendRequestId);
         const targetId = getUserIds[0].target;
-        console.log(getUserIds,"비교대상");
-        console.log("userId와 다른 값이어야함",targetId);
+        const realUserId = getUserIds[0].userId;
+        console.log(realUserId,"비교대상");
+        console.log("userId와 다른 값이어야함",targetId,userId);
         //요청 수락하기 : 과정 = 요청 수락시 상태 UNACTIVATED로 바꾸고 insert
         //이미 친구였던적 있는지 확인
-        const checkWereFriendBefore = await friendProvider.checkWereFriendBefore(userId, targetId);
+        const checkWereFriendBefore = await friendProvider.checkWereFriendBefore(realUserId, targetId);
+        console.log(userId, targetId,"asdfssss");
         if(checkWereFriendBefore == undefined) { //?
+
+            console.log(userId, targetId,"asdfsssaaa");
             //1. 상태 UNACTIVATED로 바꾸기
             const updateStatus = await friendDao.updateFriendRequestIdStatus(connection,friendRequestId);
             //2. insert하기
-            const params1 = [userId, targetId, targetId];
-            const params2 = [targetId, userId, userId];
+            console.log(userId, targetId,"asdf");
+            const params1 = [realUserId, targetId, targetId];
+            const params2 = [targetId, realUserId, realUserId];
             const friendInsert = await friendDao.insertFriendId(connection, params1);
             const friendInsert2 = await friendDao.insertFriendId(connection, params2);
         }
         else{
-
+            console.log(userId, targetId,"asdfaaaaaa");
             //1. 상태 UNACTIVATED로 바꾸기
-            const updateStatus = await friendDao.updateFriendRequestIdStatus(friendRequestId);
+            const updateStatus = await friendDao.updateFriendRequestIdStatus(connection,friendRequestId);
             //2. 기존 친구 목록에서 상태만 업데이트 하기
-            const params1 = [userId, targetId, targetId];
-            const params2 = [targetId, userId, userId];
+            console.log(userId, targetId,"asdf2");
+            const params1 = [realUserId, targetId, targetId];
+            const params2 = [targetId, realUserId, realUserId];
             const friendInsert = await friendDao.updateFriendId(connection, params1);
             const friendInsert2 = await friendDao.updateFriendId(connection, params2);
 
