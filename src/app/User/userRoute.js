@@ -70,17 +70,16 @@ module.exports = function(app){
 
 
             const signInResponse = await userService.postSignIn(userEmail, userPassword);
+
             if(signInResponse.isSuccess != true){
+
                 return res.send(signInResponse);
 
             }
 
-
             //req.session.save(function(){
             //  res.redirect('/');
             //});
-
-
 
 
             var paramId = req.body.userEmail;

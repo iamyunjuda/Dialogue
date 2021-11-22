@@ -52,15 +52,12 @@ exports.postUsers = async function (req, res) {
 
     // 기타 등등 - 추가하기
 
-console.log(userId);
+    console.log(userId);
     const signUpResponse = await userService.createUser(
         userEmail, userPassword, userName,userId
     );
 
-    req.session.displayname=userEmail;
-    return req.session.save(()=>{
-        return res.redirect('/user/welcome');
-    });
+
 
 
 
@@ -229,7 +226,7 @@ exports.getUserPassword = async function (req, res) {
 
     const userIdFromJWT = req.verifiedToken.userId
     const userId = req.params.userId;
-    const {password} = req.body;
+    const {password} = req.query;
     //WITHDRAWAL, UNACTIVATED
     if (userIdFromJWT != userId) {
         return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
