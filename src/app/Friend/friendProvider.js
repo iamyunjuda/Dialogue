@@ -189,3 +189,15 @@ exports.friendRequestList = async function (userId) {
 
     return getFriendRequestResult;
 };
+
+exports.checkAlereadyFriend = async function (userId,targetId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const params =[userId, targetId];
+    const getFriendRequestResult = await friendDao.getIfTheyAreFriend(
+        connection,
+        params
+    );
+    connection.release();
+    console.log(getFriendRequestResult,"확인해 몇개인지");
+    return getFriendRequestResult.count;
+};

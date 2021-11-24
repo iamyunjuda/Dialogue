@@ -274,7 +274,40 @@ exports.getTeamMembersIdWithMemberId = async function (userId,memberId) {
         return errResponse(baseResponse.DB_ERROR);
     }};
 
+exports.patchTeamOut = async function (teamId,userId) {
+    const connection = await pool.getConnection(async (conn) => conn);
 
+    try {
+
+        await connection.beginTransaction();
+        //const params =[ teamName, dueDate];
+        //활성화된 유저인지 확인
+        const userCheckRows = await teamProvider.userCheck(userId);
+        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+
+        //해당 teamId가 존재하는지 그리고 권한이 있는지
+        const param = [teamId, userId];
+        const checkTeamId = await teamProvider.checkTeamIdMemberExist(param);
+        if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
+
+
+        const params = [teamId, userId];
+        const getTeamMembersResult = await teamDao.patchMemberOut(connection, params);
+
+        await connection.commit();
+
+        connection.release();
+
+        return response(baseResponse.SUCCESS);
+
+    } catch (err) {
+        logger.error(`App - editUser Service error\n: ${err.message}`);
+        await connection.rollback();
+        connection.release();
+        return errResponse(baseResponse.DB_ERROR);
+    }
+};
 
 exports.patchTeamMembers = async function (teamId,userId,friendId) {
     const connection = await pool.getConnection(async (conn) => conn);

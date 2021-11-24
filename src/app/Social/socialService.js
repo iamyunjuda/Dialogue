@@ -11,7 +11,11 @@ exports.socialSignIn = async function(email) {
     try {
         const UserRows = await userProvider.accountCheck(email);
         if (UserRows[0].status === 'UNACTIVATED') {
-            return errResponse(baseResponse.SIGNIN_INACTIVE_ACCOUNT)
+            return errResponse(baseResponse.SIGNIN_INACTIVE_ACCOUNT);
+
+        }
+        if (UserRows[0].status === 'WITHDRAWL') {
+            return errResponse(baseResponse.SIGNIN_WITHDRAWAL_ACCOUNT);
 
         }
 
@@ -25,6 +29,7 @@ exports.socialSignIn = async function(email) {
                 subject: "User",
             }
         );
+        console.log(token);
         return response(baseResponse.SUCCESS, {'userId': UserRows[0].userId, 'jwt': token});
 
 

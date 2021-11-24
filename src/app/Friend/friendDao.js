@@ -183,9 +183,10 @@ async function getFriendList3(connection, params) {
 async function getFriendRequest(connection, userId) {
     const getFriendRequestQuery = `
 
+        select friendRequestId,(select userName from User where userId = F.userId) as userName from (FriendRequest F inner join User U on F.targetId = U.userId) where U.userId= ? and F.status ='ACTIVATED';
 
-        select friendRequestId, U.userName from (FriendRequest F inner join User U on F.targetId = U.userId) where U.userId= ? and F.status ='ACTIVATED';
 
+       
     `;
     const [friendRows] = await connection.query(getFriendRequestQuery,userId);
     return friendRows;
@@ -201,7 +202,17 @@ async function friendRequestPatch(connection, params) {
     const [friendRows] = await connection.query(getFriendRequestQuery,params);
     return friendRows;
 }
+async function getIfTheyAreFriend(connection, params) {
+    const getIfTheyAreFriendQuery = `
 
+
+        Select count(friendId) as count From Friend where userId=? and targetId=? and status ='ACTIVATED';
+    
+
+    `;
+    const [friendRows] = await connection.query(getIfTheyAreFriendQuery,params);
+    return friendRows[0];
+}
 
 
 module.exports={
@@ -230,5 +241,6 @@ module.exports={
     getFriendList3,
     friendRequestPatch,
     getFriendRequest,
+    getIfTheyAreFriend,
 
 }

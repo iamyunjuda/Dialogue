@@ -273,6 +273,34 @@ exports.patchTeamMembers = async function (req, res) {
 
     return res.send(patchTeamMemberResponse);
 };
+exports.patchMemberOut = async function (req, res) {
+
+    /**
+     * Body: friendId
+     */
+
+
+    const userIdFromJWT = req.verifiedToken.userId
+    const userId = req.params.userId;
+    const teamId =req.params.teamId;
+
+    if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+
+    if (!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
+    if (userIdFromJWT != userId) {
+        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+    }
+
+
+
+    const patchTeamMemberResponse = await teamService.patchTeamOut(
+        teamId, userId
+    );
+
+    return res.send(patchTeamMemberResponse);
+};
+
+
 /**
  * API No. 16
  * API Name : 팀 삭제하기
