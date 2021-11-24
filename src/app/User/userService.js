@@ -124,7 +124,7 @@ exports.postSignIn = async function (email, password) {
         const selectUserPasswordParams = [selectEmail, hashedPassword];
         const passwordRows = await userProvider.passwordCheck(selectUserPasswordParams);
         console.log(passwordRows,"맞나???");
-        console.log(hashedPassword,"맞나ㄴㄴ???");
+        console.log(passwordRows[0].userPassword,"맞나ㄴㄴ???sssss");
 
 
         if (passwordRows[0].userPassword!= hashedPassword) {

@@ -91,39 +91,54 @@ exports.retrievePostFriendRequest = async function (userId, friendRequestId) {
         const targetId = getUserIds[0].target;
         const realUserId = getUserIds[0].userId;
         console.log(realUserId,"비교대상");
-        console.log("userId와 다른 값이어야함",targetId,userId);
+        console.log("userId와 다른 값이어야함",targetId,realUserId);
         //요청 수락하기 : 과정 = 요청 수락시 상태 UNACTIVATED로 바꾸고 insert
         //이미 친구였던적 있는지 확인
         const checkWereFriendBefore = await friendProvider.checkWereFriendBefore(realUserId, targetId);
-        console.log(userId, targetId,"asdfssss");
-        if(checkWereFriendBefore == undefined) { //?
+        const checkAlereadyFriend = await friendProvider.checkAlereadyFriend(realUserId, targetId);
+        if(checkAlereadyFriend != 0){
+            const updateStatus = await friendDao.updateFriendRequestIdStatus(connection,friendRequestId);
+            await connection.commit();
+            connection.release();
 
-            console.log(userId, targetId,"asdfsssaaa");
-            //1. 상태 UNACTIVATED로 바꾸기
-            const updateStatus = await friendDao.updateFriendRequestIdStatus(connection,friendRequestId);
-            //2. insert하기
-            console.log(userId, targetId,"asdf");
-            const params1 = [realUserId, targetId, targetId];
-            const params2 = [targetId, realUserId, realUserId];
-            const friendInsert = await friendDao.insertFriendId(connection, params1);
-            const friendInsert2 = await friendDao.insertFriendId(connection, params2);
-        }
-        else{
-            console.log(userId, targetId,"asdfaaaaaa");
-            //1. 상태 UNACTIVATED로 바꾸기
-            const updateStatus = await friendDao.updateFriendRequestIdStatus(connection,friendRequestId);
-            //2. 기존 친구 목록에서 상태만 업데이트 하기
-            console.log(userId, targetId,"asdf2");
-            const params1 = [realUserId, targetId, targetId];
-            const params2 = [targetId, realUserId, realUserId];
-            const friendInsert = await friendDao.updateFriendId(connection, params1);
-            const friendInsert2 = await friendDao.updateFriendId(connection, params2);
+            return response(baseResponse.SUCCESS);
 
         }
+else{
 
-        await connection.commit();
-        connection.release();
-        return response(baseResponse.SUCCESS);
+            console.log(userId, targetId,"asdfssss");
+            if(checkWereFriendBefore == undefined) { //?
+
+                console.log(userId, targetId,"asdfsssaaa");
+                //1. 상태 UNACTIVATED로 바꾸기
+                const updateStatus = await friendDao.updateFriendRequestIdStatus(connection,friendRequestId);
+                //2. insert하기
+                console.log(userId, targetId,"asdf");
+                const params1 = [realUserId, targetId, targetId];
+                const params2 = [targetId, realUserId, realUserId];
+                const friendInsert = await friendDao.insertFriendId(connection, params1);
+                const friendInsert2 = await friendDao.insertFriendId(connection, params2);
+            }
+            else{
+                console.log(userId, targetId,"asdfaaaaaa");
+                //1. 상태 UNACTIVATED로 바꾸기
+                const updateStatus = await friendDao.updateFriendRequestIdStatus(connection,friendRequestId);
+                //2. 기존 친구 목록에서 상태만 업데이트 하기
+                console.log(userId, targetId,"asdf2");
+                const params1 = [realUserId, targetId, targetId];
+                const params2 = [targetId, realUserId, realUserId];
+                const friendInsert = await friendDao.updateFriendId(connection, params1);
+                const friendInsert2 = await friendDao.updateFriendId(connection, params2);
+
+            }
+
+            await connection.commit();
+            connection.release();
+            return response(baseResponse.SUCCESS);
+
+
+
+        }
 
     }
     catch (err){

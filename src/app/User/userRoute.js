@@ -24,7 +24,7 @@ module.exports = function(app){
 
     // 2. 로그인
     // 로그인 하기 API (JWT 생성)
-  //app.post('/app/login', user.login);
+  app.post('/app/login', user.login);
 
 
     // 회원 정보 수정 API (JWT 검증 및 Validation - 메소드 체이닝 방식으로 jwtMiddleware 사용)
@@ -48,7 +48,7 @@ module.exports = function(app){
 
     })
 
-
+/*
     app.route('/app/login')
         .post(async function(req, res){
             const {userEmail, userPassword} = req.body;
@@ -110,7 +110,7 @@ module.exports = function(app){
 
 
         });
-
+*/
     app.route('/app/logout').get(function(req,res){
         console.log('로그아운 호출');
         const result={};

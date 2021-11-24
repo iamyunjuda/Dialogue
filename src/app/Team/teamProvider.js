@@ -36,10 +36,10 @@ exports.userCheck = async function (userId) {
   connection.release();
   return checkUserResult.gount;
 };
-exports.checkTeamIdExist = async function (teamId) {
+exports.checkTeamIdMemberExist = async function (params) {
   const connection = await pool.getConnection(async (conn) => conn);
-  const checkTeamIdExistResult = await teamDao.checkTeamIdExist(
-      connection, teamId
+  const checkTeamIdExistResult = await teamDao.checkTeamIdMemberExist(
+      connection, params
   );
 
   connection.release();

@@ -27,6 +27,8 @@ module.exports = function(app){
 
     //26.팀 멤버 삭제 하기
     app.patch('/app/userIds/:userId/teams/members',jwtMiddleware,team.patchTeamMembers);
+    //26.팀 나가기
+    app.patch('/app/userIds/:userId/teams/:teamId/out',jwtMiddleware,team.patchMemberOut);
 
     //27.팀 삭제
     app.patch('/app/userIds/:userId/teams/status',jwtMiddleware,team.patchTeamStatus);

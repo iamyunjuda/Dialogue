@@ -23,7 +23,7 @@ async function addTeamMembers(connection,params) {
 
 async function getTeamIdList(connection,userId) {
     const getTeamListQuery = `
-        select teamId from Team where userId=? and status='ACTIVATED';
+        select teamId from TeamInfo where userId=? and status='ACTIVATED';
     `;
     const [userRows] = await connection.query(getTeamListQuery,userId);
     return userRows;
@@ -82,6 +82,17 @@ async function checkTeamIdExist(connection, teamId) {
     const [userRows] = await connection.query(checkTeamIdExistQuery,teamId);
     return userRows;
 }
+
+async function checkTeamIdMemberExist(connection, params) {
+    const checkTeamIdExistQuery = `
+
+
+        select teamId, userId from TeamInfo where teamId=? and userId =? and status = 'ACTIVATED';
+                `;
+    const [userRows] = await connection.query(checkTeamIdExistQuery,params);
+    return userRows;
+}
+
 
 async function patchTeam(connection, params) {
     const patchTeamQuery = `
@@ -145,7 +156,13 @@ async function selectUserInfo(connection, params) {
     const [friendRows] = await connection.query(getFriendListQuery,params);
     return friendRows;
 }
-
+async function patchMemberOut(connection, params) {
+    const patchMemberOutQuery = `
+        UPDATE TeamInfo SET status='UNACTIVATED', updatedAt= current_timestamp() where teamId= ? and userId= ?  and status= 'ACTIVATED';
+    `;
+    const [friendRows] = await connection.query(patchMemberOutQuery,params);
+    return friendRows;
+}
 
 module.exports = {
     postTeam,
@@ -163,5 +180,7 @@ module.exports = {
     checkTeamId,
     patchTeamStatus,
     selectUserId,
-    selectUserInfo
+    selectUserInfo,
+    patchMemberOut,
+    checkTeamIdMemberExist,
 };

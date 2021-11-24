@@ -475,13 +475,13 @@ exports.retrieveTeamSchedulePost = async function ( userId,teamId,startTime, end
     try{
         await connection.beginTransaction();
         //userId가 팀장인지 확인하기
-        const checkUserIdIsALeader = await scheduleProvider.userIdIsALeader(userId,teamId);
-        if (checkUserIdIsALeader.length != 1){
-            connection.release();
+      //  const checkUserIdIsALeader = await scheduleProvider.userIdIsALeader(userId,teamId);
+      //  if (checkUserIdIsALeader.length != 1){
+       //     connection.release();
 
-            return response(baseResponse.USERID_NOT_A_LEADER);
+        //    return response(baseResponse.USERID_NOT_A_LEADER);
 
-        }
+      //  }
 
 
         //팀장만 활성화되어 있는지 확인하면됨
