@@ -933,11 +933,11 @@ exports.retrieveTeamScheduleStatusPatch = async function (teamScheduleId, userId
         // const teamScheduleIdInt = parseInt(teamScheduleId);
 
         //userId가 팀장인지 확인
-        const checkUserIdIsALeader =  await scheduleProvider.getTeamLeaderId(teamScheduleId);
-        if(checkUserIdIsALeader.userId != userId) {
-            connection.release();
-            return response(baseResponse.SCHEDULE_CHANGE_NOT_ALLOWED);
-        }
+       /// const checkUserIdIsALeader =  await scheduleProvider.getTeamLeaderId(teamScheduleId);
+       // if(checkUserIdIsALeader.userId != userId) {
+         //   connection.release();
+         //   return response(baseResponse.SCHEDULE_CHANGE_NOT_ALLOWED);
+       // }
 
         const teamScheduleIdInt = parseInt(teamScheduleId);
 
