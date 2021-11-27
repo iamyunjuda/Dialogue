@@ -55,9 +55,9 @@ async function selectUserCheck(connection, userId) {
 }
 async function postSchedule(connection, postScheduleParams) {
     const postScheduleQuery = `
-        INSERT INTO Schedule(userId, courseName, startTimeHour,startTimeMin,endTimeHour,endTimeMin,courseDay,isChangeable,isPublic,isNameHidden,deleteId)
+        INSERT INTO Schedule(userId, courseName, startTimeHour,startTimeMin,endTimeHour,endTimeMin,courseDay,isChangeable,isPublic,isNameHidden,deleteId,detailContext)
         
-        values(?,?,?,?,?,?,?,?,?,?,?);
+        values(?,?,?,?,?,?,?,?,?,?,?,?);
 
 
     `;
@@ -100,7 +100,7 @@ async function getTeamScheduleCheck(connection, params) {
 
 async function selectUserSchedule(connection, userId) {
     const getScheduleCheckQuery = `
-        select scheduleStatusId as scheduleId , courseName, startTimeHour, startTimeMin, endTimeHour, endTimeMin, courseDay
+        select scheduleStatusId as scheduleId , courseName, startTimeHour, startTimeMin, endTimeHour, endTimeMin, courseDay,detailContext
         From Schedule where userId=? and status ='ACTIVATED';
 
         
@@ -336,6 +336,23 @@ async function patchTeamScheduleId(connection, scheduleId) {
     return scheduleRows[0];
 }
 
+async function getDeleteId(connection, scheduleId) {
+    const getDeleteIdQuery = `
+
+
+        select deleteId from Schedule where scheduleStatusId = ? and status ='ACTIVATED';
+
+
+    `;
+
+    const [scheduleRows] = await connection.query(getDeleteIdQuery,scheduleId);
+
+    return scheduleRows;
+}
+
+
+
+
 module.exports = {
     selectScheduleCheck,
     selectUserCheck,
@@ -365,4 +382,5 @@ module.exports = {
     patchScheduleId,
     getTeamScheduleId,
     patchTeamScheduleId,
+    getDeleteId,
 };
