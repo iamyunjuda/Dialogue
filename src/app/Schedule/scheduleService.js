@@ -14,7 +14,7 @@ const {stringify} = require("nodemon/lib/utils");
 
 
 // Service: Create, Update, Delete 비즈니스 로직 처리
-exports.retrieveSchedulePost = async function (userId, startTime, endTime, courseName, courseDay,isChangeable,isPublic,isNameHidden) {
+exports.retrieveSchedulePost = async function (userId, startTime, endTime, courseName, courseDay,isChangeable,isPublic,isNameHidden,detailContext) {
     const connection = await pool.getConnection(async (conn) => conn);
     try{
 
@@ -54,6 +54,7 @@ exports.retrieveSchedulePost = async function (userId, startTime, endTime, cours
 
         }
         //활성화된 유저인지 확인
+        console.log("asdf");
         const userCheckRows = await scheduleProvider.userCheck(userId);
 
         if(userCheckRows <1) {
@@ -64,7 +65,7 @@ exports.retrieveSchedulePost = async function (userId, startTime, endTime, cours
         let result= [];
         let result3=[];
         if((parseInt(endTimesplit[0]) < parseInt(startTimesplit[0])) | ((parseInt(endTimesplit[0]) == parseInt(startTimesplit[0])& parseInt(startTimesplit[1])>parseInt(endTimesplit[1]) ))){
-/*
+
             for(var i=0;i<courseDay.length;i++){
                 console.log(i,"다시 오냐");
                 const getSchedule = await scheduleProvider.getScheduleExist(userId,courseDay[i]);
@@ -101,11 +102,13 @@ exports.retrieveSchedulePost = async function (userId, startTime, endTime, cours
                     }
                 }
             }
-*/
+
+            if(!detailContext) detailContext = ' ';
+            console.log(detailContext,"asdfasdf");
             for(var i=0;i<courseDay.length;i++) {
                 //const postScheduleParams = [userId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i], isChangeable, isPublic, isNameHidden];
-
-                const postScheduleParams = [userId, courseName, startTimesplit[0], startTimesplit[1],23,59, courseDay[i], isChangeable, isPublic, isNameHidden,0];
+                console.log("!!!!!!");
+                const postScheduleParams = [userId, courseName, startTimesplit[0], startTimesplit[1],23,59, courseDay[i], isChangeable, isPublic, isNameHidden,0,detailContext];
 
                //const postScheduleParams2 = [userId, courseName, 0,0, endTimesplit[0], endTimesplit[1], (courseDay[i]+1)%7, isChangeable, isPublic, isNameHidden];
                 console.log(3);
@@ -118,7 +121,7 @@ exports.retrieveSchedulePost = async function (userId, startTime, endTime, cours
                 console.log(getScheduleId.scheduleId);
                 const patchDeleteId = await scheduleDao.patchScheduleId(connection, getScheduleId.scheduleId);
                 console.log(4);
-                const postScheduleParams2 = [userId, courseName, 0,0, endTimesplit[0], endTimesplit[1], (courseDay[i]+1)%7, isChangeable, isPublic, isNameHidden, getScheduleId.scheduleId];
+                const postScheduleParams2 = [userId, courseName, 0,0, endTimesplit[0], endTimesplit[1], (courseDay[i]+1)%7, isChangeable, isPublic, isNameHidden, getScheduleId.scheduleId,detailContext];
                 const postSchedule2 = await scheduleDao.postSchedule(connection, postScheduleParams2);
             }
 
@@ -128,12 +131,15 @@ exports.retrieveSchedulePost = async function (userId, startTime, endTime, cours
 
             for(var i=0;i<courseDay.length;i++) {
                 //const postScheduleParams = [userId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i], isChangeable, isPublic, isNameHidden];
-
-                const postScheduleParams = [userId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i], isChangeable, isPublic, isNameHidden,0];
+                console.log("asdf");
+                const postScheduleParams = [userId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i], isChangeable, isPublic, isNameHidden,0,detailContext];
 
 
                 const postSchedule = await scheduleDao.postSchedule(connection, postScheduleParams);
                 await connection.commit();
+                const getScheduleId = await scheduleDao.getScheduleId(connection, userId);
+                console.log(getScheduleId.scheduleId);
+                const patchDeleteId = await scheduleDao.patchScheduleId(connection, getScheduleId.scheduleId);
                 //    const params = [userId];
                 //const getScheduleId =  await scheduleDao.getScheduleId(connection, params);
 
@@ -630,7 +636,7 @@ exports.retrieveTeamSchedulePost = async function ( userId,teamId,startTime, end
                 const postScheduleParams2 = [teamId, courseName, 0,0, endTimesplit[0], endTimesplit[1], (courseDay[i]+1)%7,  getScheduleId.scheduleId];
 
                 const postTeamSchedule2 = await scheduleDao.postTeamSchedule(connection, postScheduleParams2);
-
+                await connection.commit();
 
             }
 
@@ -700,6 +706,9 @@ exports.retrieveTeamSchedulePost = async function ( userId,teamId,startTime, end
                 const postScheduleParams = [teamId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i],0];
 
                 const postTeamSchedule = await scheduleDao.postTeamSchedule(connection, postScheduleParams);
+                await connection.commit();
+                const getScheduleId = await scheduleDao.getTeamScheduleId(connection, teamId);
+                const patchDeleteId = await scheduleDao.patchTeamScheduleId(connection, getScheduleId.scheduleId);
 
                 await connection.commit();
             }
@@ -1171,11 +1180,13 @@ exports.retrieveScheduleStatusPatch = async function (scheduleId, userId) {
         //스케줄이 존재하는지
         const getScheduleExist = await scheduleProvider.getScheduleExistForPatch(scheduleId);
         if(getScheduleExist[0].count ==0) return  response(baseResponse.SCHEDULE_NOT_EXIST);
+        const getScheduleId = await scheduleDao.getDeleteId(connection,scheduleId);
 
+            const deleteId = getScheduleId[0].deleteId;
+            console.log(deleteId,"asdf");
+            const patchScheduleStatus =  await scheduleDao.patchScheduleStatus(connection,deleteId);
 
-        const patchScheduleStatus =  await scheduleDao.patchScheduleStatus(connection,scheduleId);
-
-
+      //  const patchScheduleStatus =  await scheduleDao.patchScheduleStatus(connection,scheduleId);
 
 
         await connection.commit();

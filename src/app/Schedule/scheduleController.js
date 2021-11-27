@@ -25,12 +25,13 @@ exports.postSchedule = async function (req, res) {
 
     const userIdFromJWT = req.verifiedToken.userId;
     const userId = req.params.userId;
-    const {startTime, endTime, courseName, courseDay,isChangeable, isPublic,isNameHidden} = req.body;
+    const {startTime, endTime, courseName, courseDay,isChangeable, isPublic,isNameHidden,detailContext} = req.body;
 
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (!startTime) return res.send(errResponse(baseResponse.SCHEDULE_ACTIVATEDTIME_EMPTY));
     if(!endTime) return res.send(errResponse(baseResponse.SCHEDULE_ENDTIME_EMPTY));
     if (!courseDay) return res.send(errResponse(baseResponse.SCHEDULE_ACTIVATEDAY_EMPTY));
+
     if(courseDay.length > 1){
         for(var i=0;i<courseDay.length;i++){
             if(courseDay[i]>6) return res.send(errResponse(baseResponse.SCHEDULE_COURSEDAY_EXIST));
@@ -44,7 +45,7 @@ exports.postSchedule = async function (req, res) {
    }
 
     const scheduleAdd = await scheduleService.retrieveSchedulePost(
-        userId, startTime, endTime, courseName, courseDay,isChangeable, isPublic,isNameHidden
+        userId, startTime, endTime, courseName, courseDay,isChangeable, isPublic,isNameHidden,detailContext
     );
 
     return res.send(scheduleAdd);
