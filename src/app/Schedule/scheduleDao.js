@@ -55,9 +55,9 @@ async function selectUserCheck(connection, userId) {
 }
 async function postSchedule(connection, postScheduleParams) {
     const postScheduleQuery = `
-        INSERT INTO Schedule(userId, courseName, startTimeHour,startTimeMin,endTimeHour,endTimeMin,courseDay,isChangeable,isPublic,isNameHidden)
+        INSERT INTO Schedule(userId, courseName, startTimeHour,startTimeMin,endTimeHour,endTimeMin,courseDay,isChangeable,isPublic,isNameHidden,deleteId)
         
-        values(?,?,?,?,?,?,?,?,?,?)
+        values(?,?,?,?,?,?,?,?,?,?,?);
 
 
     `;
@@ -66,8 +66,8 @@ async function postSchedule(connection, postScheduleParams) {
 }
 async function postTeamSchedule(connection, postScheduleParams) {
     const postTeamScheduleQuery = `
-        INSERT INTO TeamSchedule(teamId,courseName, startTimeHour,startTimeMin,endTimeHour,endTimeMin,courseDay)
-        values(?,?,?,?,?,?,?)
+        INSERT INTO TeamSchedule(teamId,courseName, startTimeHour,startTimeMin,endTimeHour,endTimeMin,courseDay,deleteId)
+        values(?,?,?,?,?,?,?,?);
 
            
     `;
@@ -80,7 +80,7 @@ async function getScheduleCheck(connection, params) {
     const getScheduleCheckQuery = `
 
 
-        select scheduleStatusId from Schedule where userId =? and courseDay=? and status='ACTIVATED'
+        select scheduleStatusId from Schedule where userId =? and courseDay=? and status='ACTIVATED';
     `;
     const [scheduleRows] = await connection.query(getScheduleCheckQuery,params);
 
@@ -224,7 +224,7 @@ async function patchTeamScheduleStatus(connection, teamScheduleId) {
     const patchTeamScheduleStatusQuery = `
         UPDATE TeamSchedule SET
                                status = 'UNACTIVATED', updatedAt= current_timestamp()
-        where teamScheduleId=?;
+        where deleteId=?;
     `;
     const [scheduleRows] = await connection.query(patchTeamScheduleStatusQuery,teamScheduleId);
 
@@ -235,7 +235,7 @@ async function updateTeamScheduleName(connection, params) {
     const patchTeamScheduleStatusQuery = `
         UPDATE TeamSchedule SET
                               courseName= ? ,updatedAt= current_timestamp()
-        where teamScheduleId=?;
+        where deleteId=?;
     `;
     const [scheduleRows] = await connection.query(patchTeamScheduleStatusQuery,params);
 
@@ -245,7 +245,7 @@ async function patchScheduleStatus(connection, scheduleId) {
     const patchScheduleStatusQuery = `
         UPDATE Schedule SET
             status= 'UNACTIVATED', updatedAt= current_timestamp()
-        where scheduleStatusId=? and status = 'ACTIVATED';
+        where deleteId=? and status = 'ACTIVATED';
 
     `;
     const [scheduleRows] = await connection.query(patchScheduleStatusQuery,scheduleId);
@@ -276,9 +276,65 @@ async function selectTeamSchedule(connection, teamId) {
 
     return scheduleRows;
 }
+async function getScheduleId(connection, userId) {
+    const selectTeamScheduleQuery = `
+
+        select max(scheduleStatusId) as scheduleId
+        From Schedule where userId=? and status ='ACTIVATED';
 
 
 
+    `;
+    const [scheduleRows] = await connection.query(selectTeamScheduleQuery,userId);
+
+    return scheduleRows[0];
+}
+
+async function getTeamScheduleId(connection, teamId) {
+    const selectTeamScheduleQuery = `
+
+        select max(teamScheduleId) as scheduleId
+        From TeamSchedule where teamId=? and status ='ACTIVATED';
+
+
+
+    `;
+    const [scheduleRows] = await connection.query(selectTeamScheduleQuery,teamId);
+
+    return scheduleRows[0];
+}
+async function patchScheduleId(connection, scheduleId) {
+    const patchScheduleIdQuery = `
+
+        UPDATE Schedule SET
+                            deleteId= ?, updatedAt= current_timestamp()
+        where scheduleStatusId=? and status = 'ACTIVATED';
+    
+
+
+
+    `;
+    const params =[scheduleId,scheduleId];
+    const [scheduleRows] = await connection.query(patchScheduleIdQuery,params);
+
+    return scheduleRows[0];
+}
+async function patchTeamScheduleId(connection, scheduleId) {
+    const patchScheduleIdQuery = `
+
+        UPDATE TeamSchedule SET
+                            deleteId= ?, updatedAt= current_timestamp()
+        where teamScheduleId=? and status = 'ACTIVATED';
+    
+
+
+
+    `;
+    const params =[scheduleId,scheduleId];
+    const [scheduleRows] = await connection.query(patchScheduleIdQuery,params);
+
+    return scheduleRows[0];
+}
 
 module.exports = {
     selectScheduleCheck,
@@ -305,5 +361,8 @@ module.exports = {
     patchScheduleStatus,
     checkTheyAreFriend,
     selectTeamSchedule,
-
+    getScheduleId,
+    patchScheduleId,
+    getTeamScheduleId,
+    patchTeamScheduleId,
 };

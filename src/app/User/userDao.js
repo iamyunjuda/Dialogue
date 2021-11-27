@@ -60,14 +60,14 @@ async function insertAppleUserInfo(connection, insertUserInfoParams) {
 // 패스워드 체크
 async function selectUserPassword(connection, selectUserPasswordParams) {
   const selectUserPasswordQuery = `
-        SELECT userEmail, userName, userPassword
+        SELECT userEmail, userName, userPassword,count(userId) as count
         FROM User 
         WHERE userEmail = ? AND userPassword = ? and status ='ACTIVATED';`;
   const selectUserPasswordRow = await connection.query(
       selectUserPasswordQuery,
       selectUserPasswordParams
   );
-//console.log(selectUserPasswordRow,"말안됨");
+console.log(selectUserPasswordRow,"말안됨");
   return selectUserPasswordRow;
 }
 
@@ -113,6 +113,17 @@ async function getUserPasswordCheck(connection,params) {
   return updateUserRow[0];
 }
 
+async function selectUserName(connection,userId) {
+  const selectUserNameQuery = `
+
+    select userName from User where userId= ? and status ='ACTIVATED';
+
+
+  `;
+  const selectUserNameRow = await connection.query(selectUserNameQuery,userId);
+  return selectUserNameRow[0];
+}
+
 
 module.exports = {
   selectUser,
@@ -125,5 +136,6 @@ module.exports = {
   updateUserAccountStatus,
   getUserPasswordCheck,
   insertAppleUserInfo,
+  selectUserName,
 
 };

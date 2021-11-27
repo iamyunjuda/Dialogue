@@ -137,6 +137,18 @@ async function patchTeamStatus(connection, teamId) {
     console.log(userRows,"here");
     return userRows;
 }
+async function patchAllMemberOut(connection, teamId) {
+    const checkTeamIdQuery = `
+        UPDATE TeamInfo SET status='UNACTIVATED', updatedAt= current_timestamp() where teamId= ? and status= 'ACTIVATED';
+
+    `;
+    console.log(teamId,"here");
+    const [userRows] = await connection.query(checkTeamIdQuery,teamId);
+    console.log(userRows,"here");
+    return userRows;
+}
+
+
 async function selectUserId(connection, memberId) {
     const selectUserIdQuery = `
         select userId from User where ID = ? and status = 'ACTIVATED';
@@ -164,6 +176,8 @@ async function patchMemberOut(connection, params) {
     return friendRows;
 }
 
+
+
 module.exports = {
     postTeam,
     getTeamId,
@@ -183,4 +197,7 @@ module.exports = {
     selectUserInfo,
     patchMemberOut,
     checkTeamIdMemberExist,
+    patchAllMemberOut,
+
+
 };
