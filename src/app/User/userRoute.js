@@ -47,6 +47,7 @@ module.exports = function(app){
         }
 
     })
+    app.get('/app/userIds/:userId/usernames',jwtMiddleware,user.getUserName);
 
 /*
     app.route('/app/login')

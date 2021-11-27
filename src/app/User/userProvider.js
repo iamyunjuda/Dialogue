@@ -41,6 +41,15 @@ exports.emailCheck = async function (email) {
 
   return emailCheckResult;
 };
+exports.getUserName = async function (userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getUserNameResult = await userDao.selectUserName(connection, userId);
+  connection.release();
+  console.log(getUserNameResult.userName,getUserNameResult,"g");
+  return getUserNameResult;
+};
+
+
 exports.userIdCheck = async function (userId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const userIdCheckResult = await userDao.selectUserId(connection, userId);

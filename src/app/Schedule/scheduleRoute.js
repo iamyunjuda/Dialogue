@@ -41,7 +41,7 @@ module.exports = function(app){
 
 
     //팀 스케줄 삭제
-    app.patch('/app/userIds/:userId/teamschedules/states',jwtMiddleware, schedule.patchTeamScheduleStatus);
+    app.patch('/app/userIds/:userId/teamschedules/status',jwtMiddleware, schedule.patchTeamScheduleStatus);
 
 
 

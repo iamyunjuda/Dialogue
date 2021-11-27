@@ -289,17 +289,25 @@ exports.patchTeamOut = async function (teamId,userId) {
         const param = [teamId, userId];
         const checkTeamId = await teamProvider.checkTeamIdMemberExist(param);
         if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
-        if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
 
+        if(checkTeamId[0].userId !=userId){
+            const params =[userId, teamId];
+            const patchTeamStatus =await teamDao.patchMemberOut(connection,params);
+            //   return  response(baseResponse.TEAM_NOT_ALLOWED);
 
-        const params = [teamId, userId];
-        const getTeamMembersResult = await teamDao.patchMemberOut(connection, params);
-
+        }
+        else
+        {
+            console.log(3);
+            const patchTeamStatus = await teamDao.patchTeamStatus(connection, teamId);
+            const patchTeamMemberStatus =await teamDao.patchAllMemberOut(connection,teamId);
+            console.log(4);
+        }
         await connection.commit();
-
         connection.release();
 
         return response(baseResponse.SUCCESS);
+
 
     } catch (err) {
         logger.error(`App - editUser Service error\n: ${err.message}`);
@@ -399,13 +407,20 @@ exports.patchTeamStatus = async function (teamId, userId) {
 
         //해당 teamId가 존재하는지 그리고 권한이 있는지
         console.log(2);
-        const checkTeamId = await teamProvider.checkTeamIdExist(teamId);
+        const checkTeamId = await teamDao.checkTeamIdExist(teamId);
         if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
-        if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
+        if(checkTeamId[0].userId !=userId){
+            const params =[userId, teamId];
+            const patchTeamStatus =await teamDao.patchMemberOut(connection,params);
+         //   return  response(baseResponse.TEAM_NOT_ALLOWED);
 
-        console.log(3);
-        const patchTeamStatus =await teamDao.patchTeamStatus(connection,teamId);
-        console.log(4);
+        }
+        else
+        {
+            console.log(3);
+            const patchTeamStatus = await teamDao.patchTeamStatus(connection, teamId);
+            console.log(4);
+        }
         await connection.commit();
         connection.release();
 

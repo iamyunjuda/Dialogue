@@ -23,16 +23,16 @@ exports.retrieveSchedulePost = async function (userId, startTime, endTime, cours
         var startTimesplit = startTime.split(":");
         var endTimesplit = endTime.split(":");
         //이미 존재하는 스케줄이 있는지 학인하기
-        if(parseInt(startTimesplit[0]) >parseInt(endTimesplit[0])){
-            connection.release();
-            return response(baseResponse.SCHEDULE_ERROR);
-        }
+        //if(parseInt(startTimesplit[0]) >parseInt(endTimesplit[0])){
+          //  connection.release();
+         //   return response(baseResponse.SCHEDULE_ERROR);
+     //   }
         //console.log(3);
 
-        if((parseInt(startTimesplit[0])== parseInt(endTimesplit[0])) && (parseInt(startTimesplit[1])>= parseInt(endTimesplit[1]))){
-            connection.release();
-            return response(baseResponse.SCHEDULE_ERROR);
-        }
+     //   if((parseInt(startTimesplit[0])== parseInt(endTimesplit[0])) && (parseInt(startTimesplit[1])>= parseInt(endTimesplit[1]))){
+        //    connection.release();
+      //      return response(baseResponse.SCHEDULE_ERROR);
+    //    }
 
 
         // console.log(getTeamMember,"MEm");
@@ -48,33 +48,130 @@ exports.retrieveSchedulePost = async function (userId, startTime, endTime, cours
             return response(baseResponse.TIME_MIN_ERROR);
 
         }
+        if(parseInt(endTimesplit[0])==12 & parseInt(endTimesplit[1]) ==0){
+            endTimesplit[0]=11;
+            endTimesplit[1]=59;
+
+        }
+        //활성화된 유저인지 확인
+        const userCheckRows = await scheduleProvider.userCheck(userId);
+
+        if(userCheckRows <1) {
+            connection.release();
+            return response(baseResponse.USER_UNACTIVATED);
+        }
 
         let result= [];
-        for(var i=0;i<courseDay.length;i++){
-            console.log(i,"다시 오냐");
-            const getSchedule = await scheduleProvider.getScheduleExist(userId,courseDay[i]);
-            //const getTeamSchedule = await scheduleProvider.getTeamScheduleExist(userId,courseDay[i]);
-            console.log(getSchedule,"1");
-            result.push(getSchedule);
-            console.log(result,"여기가 원인이냐?",i,courseDay.length);
-        }
+        let result3=[];
+        if((parseInt(endTimesplit[0]) < parseInt(startTimesplit[0])) | ((parseInt(endTimesplit[0]) == parseInt(startTimesplit[0])& parseInt(startTimesplit[1])>parseInt(endTimesplit[1]) ))){
+/*
+            for(var i=0;i<courseDay.length;i++){
+                console.log(i,"다시 오냐");
+                const getSchedule = await scheduleProvider.getScheduleExist(userId,courseDay[i]);
+                result.push(getSchedule);
+                const getSchedule2 = await scheduleProvider.getScheduleExist(userId,courseDay[i]+1);
+                result3.push(getSchedule2);
 
-        console.log(result,"어떻게 들어갔나 확인하기");
-        for(var i=0;i<result.length;i++) {
-            for (var j = 0; j < result[i].length; j++) {
-                console.log(2, result[i][j].scheduleStatusId, 3, result[i][j]);
-                const checkParams = [startTimesplit[0], startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[0], endTimesplit[1], result[i][j].scheduleStatusId];
-                const scheduleRows = await scheduleProvider.scheduleCheck(checkParams);
+            }
+            for(var i=0;i<result.length;i++) {
+                for (var j = 0; j < result[i].length; j++) {
+                    console.log(2, result[i][j].scheduleStatusId, 3, result[i][j]);
+                    const checkParams = [startTimesplit[0], startTimesplit[0], startTimesplit[1],23, 23, 59, result[i][j].scheduleStatusId];
+                    const scheduleRows = await scheduleProvider.scheduleCheck(checkParams);
 
 
-                if (scheduleRows.st + scheduleRows.ed == 0) {
-                    connection.release();
-                    console.log("왜지!!!!!??",i);
-                    return response(baseResponse.SCHEDULE_EXIST);
+                    if (scheduleRows.st + scheduleRows.ed == 0) {
+                        connection.release();
+                        console.log("왜지!!!!!??",i);
+                        return response(baseResponse.SCHEDULE_EXIST);
+                    }
                 }
             }
+            for(var i=0;i<result3.length;i++) {
+                for (var j = 0; j < result3[i].length; j++) {
+                    console.log(2, result3[i][j].scheduleStatusId, 3, result3[i][j]);
+                    const checkParams = [12,12,0,endTimesplit[0], endTimesplit[0], endTimesplit[1], result3[i][j].scheduleStatusId];
+                    const scheduleRows = await scheduleProvider.scheduleCheck(checkParams);
+
+
+                    if (scheduleRows.st + scheduleRows.ed == 0) {
+                        connection.release();
+                        console.log("왜지!!!!!??",i);
+                        return response(baseResponse.SCHEDULE_EXIST);
+                    }
+                }
+            }
+*/
+            for(var i=0;i<courseDay.length;i++) {
+                //const postScheduleParams = [userId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i], isChangeable, isPublic, isNameHidden];
+
+                const postScheduleParams = [userId, courseName, startTimesplit[0], startTimesplit[1],23,59, courseDay[i], isChangeable, isPublic, isNameHidden,0];
+
+               //const postScheduleParams2 = [userId, courseName, 0,0, endTimesplit[0], endTimesplit[1], (courseDay[i]+1)%7, isChangeable, isPublic, isNameHidden];
+                console.log(3);
+                const postSchedule = await scheduleDao.postSchedule(connection, postScheduleParams);
+                //    const params = [userId];
+                //const getScheduleId =  await scheduleDao.getScheduleId(connection, params);
+                await connection.commit();
+                console.log(1);
+                const getScheduleId = await scheduleDao.getScheduleId(connection, userId);
+                console.log(getScheduleId.scheduleId);
+                const patchDeleteId = await scheduleDao.patchScheduleId(connection, getScheduleId.scheduleId);
+                console.log(4);
+                const postScheduleParams2 = [userId, courseName, 0,0, endTimesplit[0], endTimesplit[1], (courseDay[i]+1)%7, isChangeable, isPublic, isNameHidden, getScheduleId.scheduleId];
+                const postSchedule2 = await scheduleDao.postSchedule(connection, postScheduleParams2);
+            }
+
+        }
+
+        else {
+
+            for(var i=0;i<courseDay.length;i++) {
+                //const postScheduleParams = [userId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i], isChangeable, isPublic, isNameHidden];
+
+                const postScheduleParams = [userId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i], isChangeable, isPublic, isNameHidden,0];
+
+
+                const postSchedule = await scheduleDao.postSchedule(connection, postScheduleParams);
+                await connection.commit();
+                //    const params = [userId];
+                //const getScheduleId =  await scheduleDao.getScheduleId(connection, params);
+
+            }
+
+
+            /*for (var i = 0; i < courseDay.length; i++) {
+                console.log(i, "다시 오냐");
+                const getSchedule = await scheduleProvider.getScheduleExist(userId, courseDay[i]);
+                //const getTeamSchedule = await scheduleProvider.getTeamScheduleExist(userId,courseDay[i]);
+                console.log(getSchedule, "1");
+                result.push(getSchedule);
+                console.log(result, "여기가 원인이냐?", i, courseDay.length);
+            }
+
+            console.log(result, "어떻게 들어갔나 확인하기");
+            for (var i = 0; i < result.length; i++) {
+                for (var j = 0; j < result[i].length; j++) {
+                    console.log(2, result[i][j].scheduleStatusId, 3, result[i][j]);
+                    const checkParams = [startTimesplit[0], startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[0], endTimesplit[1], result[i][j].scheduleStatusId];
+                    const scheduleRows = await scheduleProvider.scheduleCheck(checkParams);
+
+
+                    if (scheduleRows.st + scheduleRows.ed == 0) {
+                        connection.release();
+                        console.log("왜지!!!!!??", i);
+                        return response(baseResponse.SCHEDULE_EXIST);
+                    }
+                }
+            }*/
+
+
+
+
+
         }
         const result2= [];
+        /*
         for(var i=0;i<courseDay.length;i++){
             const getTeamSchedule = await scheduleProvider.getTeamScheduleExist(userId,courseDay[i]);
             result2.push(getTeamSchedule);
@@ -97,22 +194,13 @@ exports.retrieveSchedulePost = async function (userId, startTime, endTime, cours
         }
 
         // console.log(1,scheduleRows);
+*/
 
 
 
-        //활성화된 유저인지 확인
-        const userCheckRows = await scheduleProvider.userCheck(userId);
 
-        if(userCheckRows <1) {
-            connection.release();
-            return response(baseResponse.USER_UNACTIVATED);
-        }
-        for(var i=0;i<courseDay.length;i++) {
-            const postScheduleParams = [userId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i], isChangeable, isPublic, isNameHidden];
-            const postSchedule = await scheduleDao.postSchedule(connection, postScheduleParams);
-        }
 
-        await connection.commit();
+
         connection.release();
         return response(baseResponse.SUCCESS);
 
@@ -375,7 +463,7 @@ console.log("check1",scheduleId);
             }
         }
 
-
+       // if(courseName)
         const checkParams =[ courseName, startTimesplit[0],startTimesplit[1], endTimesplit[0],endTimesplit[1],courseDay, isChangeable, isPublic,isNameHidden,scheduleStatusId];
         const scheduleRows = await scheduleProvider.scheduleUpdate(checkParams);
 
@@ -497,16 +585,15 @@ exports.retrieveTeamSchedulePost = async function ( userId,teamId,startTime, end
         const endTimesplit = endTime.split(":");
         //시작시간보다 엔딩 시간이 더 클 경우
 
-        if(parseInt(startTimesplit[0]) >parseInt(endTimesplit[0])){
-            connection.release();
-            return response(baseResponse.SCHEDULE_ERROR);
-        }
+       //// if(parseInt(startTimesplit[0]) >parseInt(endTimesplit[0])){
+        //    connection.release();
+      //  }
         //console.log(3);
 
-        if((parseInt(startTimesplit[0])== parseInt(endTimesplit[0])) && (parseInt(startTimesplit[1])>= parseInt(endTimesplit[1]))){
-            connection.release();
-            return response(baseResponse.SCHEDULE_ERROR);
-        }
+        //if((parseInt(startTimesplit[0])== parseInt(endTimesplit[0])) && (parseInt(startTimesplit[1])>= parseInt(endTimesplit[1]))){
+        //    connection.release();
+       //     return response(baseResponse.SCHEDULE_ERROR);
+     //   }
 
 
        // console.log(getTeamMember,"MEm");
@@ -515,70 +602,175 @@ exports.retrieveTeamSchedulePost = async function ( userId,teamId,startTime, end
 
         if(parseInt(startTimesplit[0]) >23 | parseInt(endTimesplit[0]) >23) return response(baseResponse.TIME_HOUR_ERROR);
         if(parseInt(startTimesplit[1]) >59 | parseInt(endTimesplit[1]) >59) return response(baseResponse.TIME_MIN_ERROR);
+        if(parseInt(endTimesplit[0])==12 & parseInt(endTimesplit[1]) ==0){
+            endTimesplit[0]=11;
+            endTimesplit[1]=59;
+
+        }
         var result= [];
+        var result3=[];
+
+
+
+
+
         var result2=[];
 
         const getTeamMember = await scheduleProvider.getUserRows(teamId);
+        if((parseInt(endTimesplit[0]) < parseInt(startTimesplit[0])) | ((parseInt(endTimesplit[0]) == parseInt(startTimesplit[0])& parseInt(startTimesplit[1])>parseInt(endTimesplit[1]) ))){
+            for(var i=0;i<courseDay.length;i++) {
+                console.log(courseDay);
+                // const postScheduleParams = [teamId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i]];
+                const postScheduleParams = [teamId, courseName, startTimesplit[0], startTimesplit[1], 23,59, courseDay[i],0];
+               // const postScheduleParams2 = [teamId, courseName, 0,0, endTimesplit[0], endTimesplit[1],(courseDay[i]+1)%7];
+                const postTeamSchedule = await scheduleDao.postTeamSchedule(connection, postScheduleParams);
+                await connection.commit();
+                const getScheduleId = await scheduleDao.getTeamScheduleId(connection, teamId);
+                const patchDeleteId = await scheduleDao.patchTeamScheduleId(connection, getScheduleId.scheduleId);
+                const postScheduleParams2 = [teamId, courseName, 0,0, endTimesplit[0], endTimesplit[1], (courseDay[i]+1)%7,  getScheduleId.scheduleId];
 
-        for(var k=0;k<getTeamMember.length;k++){
-            for(var i=0;i<courseDay.length;i++){
-                const getSchedule = await scheduleProvider.getScheduleExist(getTeamMember[k].userId,courseDay[i]);
-                console.log(getSchedule,"1");
-                result.push(getSchedule);
-                const getTeamSchedule = await scheduleProvider.getTeamScheduleExist(userId,courseDay[i]);
-                console.log(getTeamSchedule,"team");
-                result2.push(getTeamSchedule);
+                const postTeamSchedule2 = await scheduleDao.postTeamSchedule(connection, postScheduleParams2);
+
 
             }
 
 
 
-        }
+            /*
+                        for(var k=0;k<getTeamMember.length;k++){
+                            for(var i=0;i<courseDay.length;i++){
+                                /!*  const getSchedule = await scheduleProvider.getScheduleExist(getTeamMember[k].userId,courseDay[i]);
+                                  console.log(getSchedule,"1");
+                                  result.push(getSchedule);*!/
+                                const getTeamSchedule = await scheduleProvider.getTeamScheduleExist(userId,courseDay[i]);
+                                const getTeamSchedule2 = await scheduleProvider.getTeamScheduleExist(userId,courseDay[i]+1);
+                                console.log(getTeamSchedule,"team");
+                                result2.push(getTeamSchedule);
+                                result3.push(getTeamSchedule2);
+                            }
 
 
-        for(var i=0;i<result.length;i++) {
-            for (var j = 0; j < result[i].length; j++) {
-                console.log(2, result[i][j].scheduleStatusId, 3, result[i][j]);
-                const checkParams = [startTimesplit[0], startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[0], endTimesplit[1], result[i][j].scheduleStatusId];
-                const scheduleRows = await scheduleProvider.scheduleCheck(checkParams);
-                console.log("cnfghadf",scheduleRows);
 
-                if (scheduleRows.st + scheduleRows.ed == 0) {
-                    connection.release();
-                    return response(baseResponse.SCHEDULE_EXIST);
+                        }
+
+
+                        for(var i=0;i<result2.length;i++) {
+                            for (var j = 0; j < result2[i].length; j++) {
+                                console.log(2, result2[i][j].teamScheduleId, 3, result2[i][j]);
+                                const checkParams = [startTimesplit[0], startTimesplit[0], startTimesplit[1], 0, 0, 0, result2[i][j].teamScheduleId];
+                                const scheduleRows = await scheduleProvider.teamScheduleCheck(checkParams);
+
+
+                                if (scheduleRows.st + scheduleRows.ed == 0) {
+                                    connection.release();
+                                    return response(baseResponse.SCHEDULE_EXIST);
+                                }
+                            }*/
+
+
+
+
+
+            }
+
+
+/*
+
+            for(var i=0;i<result3.length;i++) {
+                for (var j = 0; j < result3[i].length; j++) {
+                    console.log(2, result3[i][j].teamScheduleId, 3, result3[i][j]);
+                    const checkParams = [12,12,0,endTimesplit[0], endTimesplit[0], endTimesplit[1], result3[i][j].teamScheduleId];
+                    const scheduleRows = await scheduleProvider.scheduleCheck(checkParams);
+
+
+                    if (scheduleRows.st + scheduleRows.ed == 0) {
+                        connection.release();
+                        console.log("왜지!!!!!??",i);
+                        return response(baseResponse.SCHEDULE_EXIST);
+                    }
                 }
+            }*/
+
+
+
+        else {
+            for(var i=0;i<courseDay.length;i++) {
+                console.log(courseDay);
+                // const postScheduleParams = [teamId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i]];
+                const postScheduleParams = [teamId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i],0];
+
+                const postTeamSchedule = await scheduleDao.postTeamSchedule(connection, postScheduleParams);
+
+                await connection.commit();
             }
-        }
-        console.log("cnfghadf" );
-        for(var i=0;i<result2.length;i++) {
-            for (var j = 0; j < result2[i].length; j++) {
-                console.log(2, result2[i][j].teamScheduleId, 3, result2[i][j]);
-                const checkParams = [startTimesplit[0], startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[0], endTimesplit[1], result2[i][j].teamScheduleId];
-                const scheduleRows = await scheduleProvider.teamScheduleCheck(checkParams);
 
 
-                if (scheduleRows.st + scheduleRows.ed == 0) {
-                    connection.release();
-                    return response(baseResponse.SCHEDULE_EXIST);
+            /*for (var k = 0; k < getTeamMember.length; k++) {
+                for (var i = 0; i < courseDay.length; i++) {
+                    /!*  const getSchedule = await scheduleProvider.getScheduleExist(getTeamMember[k].userId,courseDay[i]);
+                      console.log(getSchedule,"1");
+                      result.push(getSchedule);*!/
+                    const getTeamSchedule = await scheduleProvider.getTeamScheduleExist(userId, courseDay[i]);
+                    console.log(getTeamSchedule, "team");
+                    result2.push(getTeamSchedule);
+
                 }
-            }
-        }
 
+
+            }
+
+            /!*
+                    for(var i=0;i<result.length;i++) {
+                        for (var j = 0; j < result[i].length; j++) {
+                            console.log(2, result[i][j].scheduleStatusId, 3, result[i][j]);
+                            const checkParams = [startTimesplit[0], startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[0], endTimesplit[1], result[i][j].scheduleStatusId];
+                            const scheduleRows = await scheduleProvider.scheduleCheck(checkParams);
+                            console.log("cnfghadf",scheduleRows);
+
+                            if (scheduleRows.st + scheduleRows.ed == 0) {
+                                connection.release();
+                                return response(baseResponse.SCHEDULE_EXIST);
+                            }
+                        }
+                    }
+
+             *!/
+            console.log("cnfghadf");
+            for (var i = 0; i < result2.length; i++) {
+                for (var j = 0; j < result2[i].length; j++) {
+                    console.log(2, result2[i][j].teamScheduleId, 3, result2[i][j]);
+                    const checkParams = [startTimesplit[0], startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[0], endTimesplit[1], result2[i][j].teamScheduleId];
+                    const scheduleRows = await scheduleProvider.teamScheduleCheck(checkParams);
+
+
+                    if (scheduleRows.st + scheduleRows.ed == 0) {
+                        connection.release();
+                        return response(baseResponse.SCHEDULE_EXIST);
+                    }
+                }
+            }*/
+        }
         // console.log(1,scheduleRows);
 console.log("출력확인" );
 
-        for(var i=0;i<courseDay.length;i++) {
+ /*       for(var i=0;i<courseDay.length;i++) {
                 console.log(courseDay);
-                const postScheduleParams = [teamId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i]];
-                const postTeamSchedule = await scheduleDao.postTeamSchedule(connection, postScheduleParams);
+               // const postScheduleParams = [teamId, courseName, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i]];
+            const postScheduleParams = [teamId, courseName, startTimesplit[0], startTimesplit[1], 11,59, courseDay[i]];
+            const postScheduleParams2 = [teamId, courseName, 0,0, endTimesplit[0], endTimesplit[1], courseDay[i]+1];
+            const postTeamSchedule = await scheduleDao.postTeamSchedule(connection, postScheduleParams);
+
+            const postTeamSchedule2 = await scheduleDao.postTeamSchedule(connection, postScheduleParams2);
+
+
             }
+*/
 
 
 
 
 
 
-        await connection.commit();
         connection.release();
         return response(baseResponse.SUCCESS);
 
@@ -933,11 +1125,11 @@ exports.retrieveTeamScheduleStatusPatch = async function (teamScheduleId, userId
         // const teamScheduleIdInt = parseInt(teamScheduleId);
 
         //userId가 팀장인지 확인
-        const checkUserIdIsALeader =  await scheduleProvider.getTeamLeaderId(teamScheduleId);
-        if(checkUserIdIsALeader.userId != userId) {
-            connection.release();
-            return response(baseResponse.SCHEDULE_CHANGE_NOT_ALLOWED);
-        }
+       /// const checkUserIdIsALeader =  await scheduleProvider.getTeamLeaderId(teamScheduleId);
+       // if(checkUserIdIsALeader.userId != userId) {
+         //   connection.release();
+         //   return response(baseResponse.SCHEDULE_CHANGE_NOT_ALLOWED);
+       // }
 
         const teamScheduleIdInt = parseInt(teamScheduleId);
 

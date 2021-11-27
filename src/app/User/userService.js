@@ -21,8 +21,12 @@ exports.createUser = async function (email, password, nickname,userId) {
         // 이메일 중복 확인
         await connection.beginTransaction();
         const emailRows = await userProvider.emailCheck(email);
-        if (emailRows.length > 0)
+        if (emailRows.length > 0){
+
+            connection.release();
             return errResponse(baseResponse.SIGNUP_REDUNDANT_EMAIL);
+        }
+
 
         // 비밀번호 암호화
         const hashedPassword = await crypto
@@ -30,10 +34,12 @@ exports.createUser = async function (email, password, nickname,userId) {
             .update(password)
             .digest("hex");
         const userIdCheck = await userProvider.userIdCheck(userId);
-        console.log(userId);
-        if (userIdCheck.length > 0)
-            return errResponse(baseResponse.SIGNUP_REDUNDANT_USERID);
+        console.log(userIdCheck.length);
+        if (userIdCheck.length > 0) {
 
+            connection.release();
+            return errResponse(baseResponse.SIGNUP_REDUNDANT_USERID);
+        }
         const insertUserInfoParams = [email, hashedPassword, nickname,userId];
 
         console.log(userId);
@@ -121,13 +127,14 @@ exports.postSignIn = async function (email, password) {
             .update(password)
             .digest("hex");
 
-        const selectUserPasswordParams = [selectEmail, hashedPassword];
+        console.log(hashedPassword,"ㅗㅑㅑ");
+       const selectUserPasswordParams = [selectEmail, hashedPassword];
         const passwordRows = await userProvider.passwordCheck(selectUserPasswordParams);
         console.log(passwordRows,"맞나???");
-        console.log(passwordRows[0].userPassword,"맞나ㄴㄴ???sssss");
+        console.log(passwordRows[0],"맞나ㄴㄴ???sssss");
+        console.log(passwordRows[0].length,"쳌???");
 
-
-        if (passwordRows[0].userPassword!= hashedPassword) {
+        if (passwordRows[0].count==0) {
             console.log("adsf");
 
             return errResponse(baseResponse.SIGNIN_PASSWORD_WRONG);

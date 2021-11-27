@@ -58,9 +58,6 @@ exports.postUsers = async function (req, res) {
     );
 
 
-
-
-
     return res.send(signUpResponse);
 };
 
@@ -122,8 +119,32 @@ exports.getUsers = async function (req, res) {
         return res.send(response(baseResponse.SUCCESS, userListByEmail));
     }
 };
+////여기부터
+exports.getUserName = async function (req, res) {
+
+    /**
+     * Query String: email
+     */
 
 
+
+    // jwt - userId, path variable :userId
+
+    const userIdFromJWT = req.verifiedToken.userId
+    const userId = req.params.userId;
+
+    //WITHDRAWAL, UNACTIVATED
+    if (userIdFromJWT != userId) {
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+    }
+    if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+
+    const getUserName = await userProvider.getUserName(userId);
+
+    console.log(getUserName,"ee11");
+    return res.send(response(baseResponse.SUCCESS, getUserName));
+
+};
 
 
 
