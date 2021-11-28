@@ -48,6 +48,19 @@ async function getTeamDueDate(connection,teamId) {
                case
                    when TIMESTAMPDIFF(hour,NOW(),dueDate) < 0
                         then '무기한'
+                
+                   when TIMESTAMPDIFF(day,NOW(),dueDate) >=1
+                       then concat(TIMESTAMPDIFF(day,NOW(),dueDate),'일')
+                   ELSE '만료됨'
+                   END as Time
+        from Team where teamId=? and status ='ACTIVATED';
+    `;
+    const [userRows] = await connection.query(getTeamDueDateQuery,teamId);
+    /*
+    *   select teamId,
+               case
+                   when TIMESTAMPDIFF(hour,NOW(),dueDate) < 0
+                        then '무기한'
                    when TIMESTAMPDIFF(hour,NOW(),dueDate) <24 and  TIMESTAMPDIFF(hour,NOW(),dueDate) >0
                        then concat(TIMESTAMPDIFF(hour,NOW(),dueDate),'시간')
                    when TIMESTAMPDIFF(minute,NOW(),dueDate) <60 and TIMESTAMPDIFF(minute,NOW(),dueDate) >60
@@ -57,8 +70,7 @@ async function getTeamDueDate(connection,teamId) {
                    ELSE '만료됨'
                    END as Time
         from Team where teamId=? and status ='ACTIVATED';
-    `;
-    const [userRows] = await connection.query(getTeamDueDateQuery,teamId);
+    * */
     return userRows[0];
 }
 
@@ -75,6 +87,7 @@ async function selectUserCheck(connection, userId) {
     return userRows[0];
 }
 async function checkTeamIdExist(connection, teamId) {
+    console.log(teamId,"asdf");
     const checkTeamIdExistQuery = `
 
         select teamId, userId from Team where teamId=? and status = 'ACTIVATED';
@@ -105,7 +118,7 @@ async function patchTeam(connection, params) {
 async function getTeamMembers(connection, params) {
     const getTeamMembersQuery = `
 
-        select U.userId, U.userName from (User U inner join TeamInfo TI on TI.userId = U.userId)  where TI.teamId =? and U.status = 'ACTIVATED';
+        select U.userId, U.userName as userName from (User U inner join TeamInfo TI on TI.userId = U.userId)  where TI.teamId =? and U.status = 'ACTIVATED';
 
        /* select TI.userId, F.friendName from (TeamInfo TI inner join Friend F on TI.userId = F.targetId) where teamId = ? and F.userId = ? and TI.status = 'ACTIVATED';*/
     `;

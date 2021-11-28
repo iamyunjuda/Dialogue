@@ -167,6 +167,29 @@ exports.getTeamMembers = async function (req, res) {
     return res.send(getTeamMembersResponse);
 };
 
+exports.getTeamMemberAndMYSchedule = async function (req, res) {
+
+    /**
+     * Body: friendId
+     */
+    const {teamId} = req.query;
+
+    const userIdFromJWT = req.verifiedToken.userId
+    const userId = req.params.userId;
+
+    if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+    if (!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
+    if (userIdFromJWT != userId) {
+        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+    }
+    // 길이 체크
+
+    const getTeamMembersResponse = await teamService.getTeagetTeamMemberAndMYSchedulemMembers(
+        userId,teamId
+    );
+
+    return res.send(getTeamMembersResponse);
+};
 
 
 
