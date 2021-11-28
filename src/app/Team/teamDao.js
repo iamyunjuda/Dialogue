@@ -37,7 +37,7 @@ async function getTeamMemberNumbers(connection,teamId) {
 }
 async function getTeamName(connection,teamId) {
     const getTeamNameQuery = `
-        select teamName from Team where teamId=? and status='ACTIVATED';
+        select teamName from Team where teamId=? and status='ACTIVATED' ORDER BY updatedAt DESC;
     `;
     const [userRows] = await connection.query(getTeamNameQuery,teamId);
     return userRows[0];

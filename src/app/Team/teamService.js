@@ -214,7 +214,7 @@ exports.getTeamMembers = async function (userId,teamId) {
         const userCheckRows = await teamProvider.userCheck(userId);
         if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
         //해당 teamId가 존재하는지 그리고 권한이 있는지
-        const checkTeamId = await teamDao.checkTeamIdExist(teamId);
+        const checkTeamId = await teamDao.checkTeamIdExist(connection,teamId);
         if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
         if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
 

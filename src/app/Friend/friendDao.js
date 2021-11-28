@@ -166,7 +166,7 @@ async function getUpdatedInfo(connection, scheduleId) {
 
 async function getFriendList2(connection, params) {
     const searchFriendNameQuery = `
-        select targetId as friendId, friendName from Friend where userId=? and friendName LIKE ? and status='ACTIVATED'
+        select targetId as friendId, friendName from Friend where userId=? and friendName LIKE ? and status='ACTIVATED' ORDER BY friendName ASC;
     `;
     const [friendRows] = await connection.query(searchFriendNameQuery,params);
     return friendRows;
