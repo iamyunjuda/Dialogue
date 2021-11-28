@@ -17,10 +17,10 @@ module.exports = function(app){
 
     //18. 팀 목록 불러오기
     app.get('/app/userIds/:userId/teams',jwtMiddleware,team.getTeam);
-
+    app.get('/app/userIds/:userId/teams/lists',jwtMiddleware,team.getTeamMemberAndMYSchedule);
 
     //24. 팀에 속한 팀 멤버 목록 불러오기
-    app.get('/app/userIds/:userId/teams/members',jwtMiddleware,team.getTeamMembers)
+    app.get('/app/userIds/:userId/teams/members',jwtMiddleware,team.getTeamMembers);
 
     //25.팀 이름, 날짜 수정하기
     app.patch('/app/userIds/:userId/teams',jwtMiddleware,team.patchTeam);

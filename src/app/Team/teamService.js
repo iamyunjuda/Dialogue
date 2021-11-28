@@ -10,6 +10,8 @@ const {errResponse} = require("../../../config/response");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const {connect} = require("http2");
+const scheduleProvider = require("../Schedule/scheduleProvider");
+const {stringify} = require("nodemon/lib/utils");
 //const friendProvider = require("./friendProvider");
 
 
@@ -212,7 +214,7 @@ exports.getTeamMembers = async function (userId,teamId) {
         const userCheckRows = await teamProvider.userCheck(userId);
         if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
         //해당 teamId가 존재하는지 그리고 권한이 있는지
-        const checkTeamId = await teamProvider.checkTeamIdExist(teamId);
+        const checkTeamId = await teamDao.checkTeamIdExist(teamId);
         if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
         if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
 
@@ -234,7 +236,80 @@ exports.getTeamMembers = async function (userId,teamId) {
     }
 };
 
+exports.getTeagetTeamMemberAndMYSchedulemMembers = async function (userId,teamId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    try{
 
+        console.log(teamId);
+        await connection.beginTransaction();
+        const checkTeamId = await teamDao.checkTeamIdExist(connection,teamId);
+        console.log(checkTeamId);
+        if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
+
+
+        //활성화된 유저인지 확인
+        const userCheckRows = await scheduleProvider.userCheck(userId);
+        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+        const getSchedule = await scheduleProvider.getSchedule(userId);
+
+        if(getSchedule ==0 ){
+            connection.release();
+            return response(baseResponse.SUCCESS,[]);
+
+        }
+        for(var i=0;i<getSchedule.length;i++){
+            getSchedule[i].scheduleId = stringify(getSchedule[i].scheduleId);
+            const startTime = (getSchedule[i].startTimeHour)+':'+(getSchedule[i].startTimeMin);
+            const endTime =  (getSchedule[i].endTimeHour) +':'+(getSchedule[i].endTimeMin);
+
+            getSchedule[i].startTime=startTime;
+            getSchedule[i].endTime=endTime;
+            delete getSchedule[i].startTimeHour;
+            delete getSchedule[i]["startTimeMin"];
+            delete getSchedule[i]['endTimeHour'];
+            delete getSchedule[i]['endTimeMin'];
+
+            if(i==getSchedule.length-1){
+                let memList ='';
+                const params = [teamId];
+
+                const getTeamMembersResult = await teamDao.getTeamMembers(connection, params);
+                console.log(getTeamMembersResult,"aaaagggg");
+
+                for(let i=0;i<getTeamMembersResult.length;i++){
+                    console.log(getTeamMembersResult[i].userName,"qtqetw");
+                    memList+=getTeamMembersResult[i].userName;
+                    memList+=' ';
+                    console.log(memList,"qqwertqetdsadw");
+                    //memList.push= getTeamMembersResult[0].userName;
+
+                }
+                getSchedule[i].memberList = memList;
+
+            }
+
+        }
+
+
+
+        await connection.commit();
+        connection.release();
+
+        return response(baseResponse.SUCCESS,getSchedule);
+
+    }
+    catch (err){
+
+        await connection.rollback();
+        connection.release();
+        logger.error(`App - postSchedule Service error\n: ${err.message}`);
+        return errResponse(baseResponse.DB_ERROR);
+
+    }
+
+
+};
 
 exports.getTeamMembersIdWithMemberId = async function (userId,memberId) {
     const connection = await pool.getConnection(async (conn) => conn);
@@ -329,7 +404,7 @@ exports.patchTeamMembers = async function (teamId,userId,friendId) {
         if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
 
         //해당 teamId가 존재하는지 그리고 권한이 있는지
-        const checkTeamId = await teamProvider.checkTeamIdExist(teamId);
+        const checkTeamId = await teamDao.checkTeamIdExist(teamId);
         if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
         if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
 
@@ -368,11 +443,18 @@ exports.getTeamList = async function (userId) {
             const getTeamName =await teamDao.getTeamName(connection,getTeamList[i].teamId);
             console.log("check2",getTeamName);
             const getDueDate = await teamDao.getTeamDueDate(connection,getTeamList[i].teamId);
-            console.log("check3");
+            console.log("check3",getDueDate);
             try{
                 getTeamList[i].numOfMembers = getTeamMemberNumbers.numOfMember;
                 getTeamList[i].teamName = getTeamName.teamName;
-                getTeamList[i].timeLeft =getDueDate.Time;
+                if(getDueDate.Time =='만료됨'){
+                    const patchTeamList = await teamDao.patchTeamStatus(connection,getTeamList[i].teamId);
+                    const patchTeamMember = await teamDao.patchAllMemberOut(connection,getTeamList[i].teamId);
+                }
+                else{
+                    getTeamList[i].timeLeft =getDueDate.Time;
+                }
+
             }
             catch(err){continue;}
 
