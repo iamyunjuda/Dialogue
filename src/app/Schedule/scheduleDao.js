@@ -349,7 +349,19 @@ async function getDeleteId(connection, scheduleId) {
 
     return scheduleRows;
 }
+async function getTeamDeleteId(connection, scheduleId) {
+    const getDeleteIdQuery = `
 
+
+        select deleteId from TeamSchedule where teamScheduleId = ? and status ='ACTIVATED';
+
+
+    `;
+
+    const [scheduleRows] = await connection.query(getDeleteIdQuery,scheduleId);
+
+    return scheduleRows;
+}
 
 
 
@@ -383,4 +395,5 @@ module.exports = {
     getTeamScheduleId,
     patchTeamScheduleId,
     getDeleteId,
+    getTeamDeleteId,
 };

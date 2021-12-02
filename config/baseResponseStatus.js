@@ -47,7 +47,7 @@ module.exports = {
     TEAM_DUEDATE_EMPTY : { "isSuccess": false, "code": 2029, "message": "일정 종료 시간을 입력하세요" },
     TEAM_NAME_LENGTH : { "isSuccess": false, "code": 2030, "message": "팀 이름을 30자 이내로 입력하세요" },
     SIGNUP_REDUNDANT_USERID: { "isSuccess": false, "code": 2031, "message": "존재하는 아이디입니다." },
-    TEAM_TEAMID_EMPTY: { "isSuccess": false, "code": 2032, "message": "팀ID를 입력해주세요" },
+    TEAM_TEAMID_EMPTY: { "isSuccess": false, "code": 2032, "message": "팀스케줄이 아닙니다." },
     SCHEDULE_COURSENAME_EMPTY : { "isSuccess": false, "code": 2033, "message": "팀 일정 이름을 입력해주세요." },
     SCHEDULE_TEAMSCHEDULEID_EMPTY: { "isSuccess": false, "code": 2034, "message": "팀일정Id를 입력해주세요." },
     LOGIN_ALREADY_DONE: { "isSuccess": false, "code": 2035, "message": "이미 로그인이 완료되었습니다." },

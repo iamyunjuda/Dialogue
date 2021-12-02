@@ -116,11 +116,22 @@ async function getUserPasswordCheck(connection,params) {
 async function selectUserName(connection,userId) {
   const selectUserNameQuery = `
 
-    select userName from User where userId= ? and status ='ACTIVATED';
+    select ID as userName from User where userId= ? and status ='ACTIVATED';
 
 
   `;
   const selectUserNameRow = await connection.query(selectUserNameQuery,userId);
+  return selectUserNameRow[0];
+}
+
+async function updateUserFriendName(connection,params2) {
+  const selectUserNameQuery = `
+
+    UPDATE Friend SET friendName=? where targetId= ? and status ='ACTIVATED';
+
+
+  `;
+  const selectUserNameRow = await connection.query(selectUserNameQuery,params2);
   return selectUserNameRow[0];
 }
 
@@ -137,5 +148,6 @@ module.exports = {
   getUserPasswordCheck,
   insertAppleUserInfo,
   selectUserName,
+  updateUserFriendName,
 
 };
