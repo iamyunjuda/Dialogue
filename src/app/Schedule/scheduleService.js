@@ -985,6 +985,12 @@ exports.retrieveTeamScheduleTimePatch = async function (teamScheduleId, userId, 
 
 
         const getTeamMember = await scheduleProvider.getUserRows(checkUserIdIsALeader.teamId);
+        if(getTeamMember ==undefined){
+            connection.release();
+            return response(baseResponse.SUCCESS);
+
+        }
+
         for(var k=0;k<getTeamMember.length;k++){
             for(var i=0;i<courseDay.length;i++){
                 const getSchedule = await scheduleProvider.getScheduleExist(getTeamMember[k].userId,courseDay[i]);
@@ -1182,8 +1188,10 @@ exports.retrieveTeamScheduleStatusPatch = async function (teamScheduleId, userId
        // }
 
         const teamScheduleIdInt = parseInt(teamScheduleId);
+        const getScheduleId = await scheduleDao.getTeamDeleteId(connection,teamScheduleId);
 
-        const patchScheduleStatus =  await scheduleDao.patchTeamScheduleStatus(connection,teamScheduleIdInt);
+        const deleteId = getScheduleId[0].deleteId;
+        const patchScheduleStatus =  await scheduleDao.patchTeamScheduleStatus(connection,deleteId);
 
 
 

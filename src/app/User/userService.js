@@ -119,7 +119,7 @@ exports.postSignIn = async function (email, password) {
 
         if (emailRows.length < 1) return errResponse(baseResponse.SIGNIN_EMAIL_WRONG);
 
-        const selectEmail = emailRows[0].userEmail
+        const selectEmail = emailRows[0].userEmail;
         console.log(selectEmail,"맞나???");
         // 비밀번호 확인
         const hashedPassword = await crypto
@@ -193,6 +193,11 @@ exports.editUser = async function (userId, userName, userPassword) {
         const params = [userName, hashedPassword,userId];
 
         const editUserResult = await userDao.updateUserInfo(connection, params);
+        const params2 = [userName,userId];
+        const editUserFriendName = await userDao.updateUserFriendName(connection, params2);
+
+
+
         await connection.commit();
         connection.release();
 

@@ -35,7 +35,7 @@ exports.postTeamName = async function (teamName, dueDate,userId,friendId) {
         }
 
         if(dueDate == "infinite"){
-            dueDate = "2099-12-31";
+            dueDate = "2030-12-31";
 
         }
        else{
@@ -68,7 +68,11 @@ exports.postTeamName = async function (teamName, dueDate,userId,friendId) {
 
         //팀 아이디 불러오기
         const getTeamId = await teamDao.getTeamId(connection,userId);
+        if(getTeamId.teamId == undefined) {
+            connection.release();
+            return response(baseResponse.TEAM_TEAMID_NOT_EXIST);
 
+        }
         for(var i =0 ;i < friendId.length;i++) {
 
 
@@ -101,7 +105,7 @@ exports.patchTeamName = async function (teamId, teamName, dueDate,userId) {
 
 
         await connection.beginTransaction();
-        const checkTeamId = await teamProvider.checkTeamIdExist(teamId);
+        const checkTeamId = await teamDao.checkTeamIdExist(teamId);
         if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
         if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
 
@@ -178,6 +182,7 @@ exports.postTeamMembersWithMemberId = async function (teamId,userId,memberId) {
         const exchangeMemberIdTofriendId = await teamProvider.getUserId(memberId);
 
         const friendId = exchangeMemberIdTofriendId;
+        if(friendId ==undefined) return response(baseResponse.USER_USERID_NOT_EXIST);
         console.log("hi",friendId,"here");
 console.log("----------------");
         const userCheckRows = await teamProvider.userCheck(friendId);
@@ -335,7 +340,11 @@ exports.getTeamMembersIdWithMemberId = async function (userId,memberId) {
         const getFriendListRows = await teamProvider.getFriendId(params);
 
         console.log(getFriendListRows,"ssdfasd");
+        if(getFriendListRows==undefined){
+            connection.release();
+            return response(baseResponse.SUCCESS,[]);
 
+        }
         await connection.commit();
         connection.release();
         return response(baseResponse.SUCCESS,getFriendListRows);
@@ -436,6 +445,9 @@ exports.getTeamList = async function (userId) {
         //팀 아이디 불러오기
         const getTeamList = await teamDao.getTeamIdList(connection,userId);
         console.log(getTeamList);
+        if(getTeamIdList.length == 0) {
+            return response(baseResponse.SUCCESS,[]);
+        }
         for(var i=0;i<getTeamList.length;i++){
             const getTeamMemberNumbers = await teamDao.getTeamMemberNumbers(connection,getTeamList[i].teamId);
             console.log("check1",getTeamList[i].teamId);

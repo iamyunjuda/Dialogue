@@ -45,7 +45,7 @@ exports.getUserName = async function (userId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getUserNameResult = await userDao.selectUserName(connection, userId);
   connection.release();
-  console.log(getUserNameResult.userName,getUserNameResult,"g");
+  console.log(getUserNameResult,getUserNameResult,"g");
   return getUserNameResult;
 };
 
