@@ -117,13 +117,13 @@ exports.getFriendList = async function (userId) {
     );
     console.log(getFriendListResult,111);
     //목록에 각각의 최신 업데이트 내용
-    if(getFriendListResult == undefined)return;
-    else if(getFriendListResult.length==0){
-        return [];
-
-    }
-    else{
-        console.log(getFriendListResult[0].targetId,1111);
+   // if(getFriendListResult == undefined)return;
+ // if(getFriendListResult.length==0){
+ //       return [];
+//
+  //  }
+  //  else{
+        //console.log(getFriendListResult[0].targetId,1111);
     for(var i=0;i<getFriendListResult.length;i++){
 
         console.log(getFriendListResult[i].targetId,"친구Id 맞나 확인하기")
@@ -143,7 +143,7 @@ exports.getFriendList = async function (userId) {
     connection.release();
 
     return getFriendListResult;
-    }
+ //   }
 };
 exports.getFriendSearchList = async function (userId,friendName) {
     const connection = await pool.getConnection(async (conn) => conn);

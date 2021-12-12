@@ -445,7 +445,7 @@ exports.getTeamList = async function (userId) {
         //팀 아이디 불러오기
         const getTeamList = await teamDao.getTeamIdList(connection,userId);
         console.log(getTeamList);
-        if(getTeamIdList.length == 0) {
+        if(getTeamList.length == 0) {
             return response(baseResponse.SUCCESS,[]);
         }
         for(var i=0;i<getTeamList.length;i++){
@@ -501,7 +501,7 @@ exports.patchTeamStatus = async function (teamId, userId) {
 
         //해당 teamId가 존재하는지 그리고 권한이 있는지
         console.log(2);
-        const checkTeamId = await teamDao.checkTeamIdExist(teamId);
+        const checkTeamId = await teamDao.checkTeamIdExist(connection,teamId);
         if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
         if(checkTeamId[0].userId !=userId){
             const params =[userId, teamId];
