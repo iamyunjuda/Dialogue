@@ -46,11 +46,13 @@ async function getTeamDueDate(connection,teamId) {
     const getTeamDueDateQuery = `
         select teamId,
                case
-                   when TIMESTAMPDIFF(hour,NOW(),dueDate) < 0
+                   when TIMESTAMPDIFF(year,NOW(),dueDate) >=5
                         then '무기한'
                 
                    when TIMESTAMPDIFF(day,NOW(),dueDate) >=1
                        then concat(TIMESTAMPDIFF(day,NOW(),dueDate),'일')
+                   
+                   
                    ELSE '만료됨'
                    END as Time
         from Team where teamId=? and status ='ACTIVATED';
@@ -183,13 +185,35 @@ async function selectUserInfo(connection, params) {
 }
 async function patchMemberOut(connection, params) {
     const patchMemberOutQuery = `
-        UPDATE TeamInfo SET status='UNACTIVATED', updatedAt= current_timestamp() where teamId= ? and userId= ?  and status= 'ACTIVATED';
+        UPDATE TeamInfo SET status='UNACTIVATED', updatedAt= current_timestamp() where userId= ? and teamId= ?   and status= 'ACTIVATED';
     `;
     const [friendRows] = await connection.query(patchMemberOutQuery,params);
     return friendRows;
 }
 
+async function checkTeamMemNum(connection, teamId) {
+    const checkTeamMemNumQuery = `
+        select count(userId) as count From TeamInfo where status='ACTIVATED' and teamId=?;
+    `;
+    const [friendRows] = await connection.query(checkTeamMemNumQuery,teamId);
+    return friendRows[0];
+}
+async function checkTeamMemNum(connection, teamId) {
+    const checkTeamMemNumQuery = `
+        select count(userId) as count From TeamInfo where status='ACTIVATED' and teamId=?;
+    `;
+    const [friendRows] = await connection.query(checkTeamMemNumQuery,teamId);
+    return friendRows[0];
+}
 
+async function getTeamInfo(connection, teamId) {
+    const getTeamInfoQuery = `
+
+        select teamName, dueDate from Team where teamId=95 and status='ACTIVATED';
+    `;
+    const [friendRows] = await connection.query(getTeamInfoQuery,teamId);
+    return friendRows[0];
+}
 
 module.exports = {
     postTeam,
@@ -211,6 +235,8 @@ module.exports = {
     patchMemberOut,
     checkTeamIdMemberExist,
     patchAllMemberOut,
+    checkTeamMemNum,
+    getTeamInfo,
 
 
 };

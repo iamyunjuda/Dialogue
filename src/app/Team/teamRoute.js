@@ -24,6 +24,8 @@ module.exports = function(app){
 
     //25.팀 이름, 날짜 수정하기
     app.patch('/app/userIds/:userId/teams',jwtMiddleware,team.patchTeam);
+    //팀 수정을 위해 정보 불러오기
+    app.get('/app/userIds/:userId/teamInfo/:teamId',jwtMiddleware,team.getTeamInfoForPatch);
 
     //26.팀 멤버 삭제 하기
     app.patch('/app/userIds/:userId/teams/members',jwtMiddleware,team.patchTeamMembers);
