@@ -105,9 +105,9 @@ exports.patchTeamName = async function (teamId, teamName, dueDate,userId) {
 
 
         await connection.beginTransaction();
-        const checkTeamId = await teamDao.checkTeamIdExist(teamId);
+        const checkTeamId = await teamDao.checkTeamIdExist(connection,teamId);
         if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
-        if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
+
 
         const params =[teamName, dueDate,teamId];
         const patchTeamResult = await teamDao.patchTeam(connection,params);
@@ -208,6 +208,50 @@ console.log("----------------");
     }
 };
 
+exports.getTeamInfoForPatch = async function(userId,teamId) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    try {
+
+        await connection.beginTransaction();
+        //const params =[ teamName, dueDate];
+        //활성화된 유저인지 확인
+        const userCheckRows = await teamProvider.userCheck(userId);
+        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+        //해당 teamId가 존재하는지 그리고 권한이 있는지
+        const checkTeamId = await teamDao.checkTeamIdExist(connection,teamId);
+        if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        //if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
+
+
+        const params = [teamId, userId];
+        const getTeamInfoResult = await teamDao.getTeamInfo(connection, params);
+     //   console.log(getTeamInfoResult.dueDate,"asdfadsf");
+       const text = getTeamInfoResult.dueDate;
+        getTeamInfoResult.dueDate= (text.getFullYear() +"-"+(text.getMonth()+1)+"-"+text.getDate());
+
+        //if(text== '2030-12-31') {
+          //  getTeamInfoResult.duedate = 'infinite';
+          //  console.log(1111);
+
+       // }
+        await connection.commit();
+
+        connection.release();
+
+        return response(baseResponse.SUCCESS,getTeamInfoResult);
+
+    } catch (err) {
+        logger.error(`App - editUser Service error\n: ${err.message}`);
+        await connection.rollback();
+        connection.release();
+        return errResponse(baseResponse.DB_ERROR);
+    }
+
+
+
+}
+
+
 exports.getTeamMembers = async function (userId,teamId) {
     const connection = await pool.getConnection(async (conn) => conn);
     try {
@@ -221,7 +265,7 @@ exports.getTeamMembers = async function (userId,teamId) {
         //해당 teamId가 존재하는지 그리고 권한이 있는지
         const checkTeamId = await teamDao.checkTeamIdExist(connection,teamId);
         if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
-        if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
+        //if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
 
 
         const params = [teamId, userId];
@@ -503,18 +547,29 @@ exports.patchTeamStatus = async function (teamId, userId) {
         console.log(2);
         const checkTeamId = await teamDao.checkTeamIdExist(connection,teamId);
         if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
-        if(checkTeamId[0].userId !=userId){
+     //   if(checkTeamId[0].userId !=userId){
+
             const params =[userId, teamId];
-            const patchTeamStatus =await teamDao.patchMemberOut(connection,params);
-         //   return  response(baseResponse.TEAM_NOT_ALLOWED);
+
+        const checkTeamMemNum = await teamDao.checkTeamMemNum(connection,teamId);
+        console.log(checkTeamMemNum.count,"확인해");
+        if(checkTeamMemNum.count == 1) {
+            const patchTeamStatus = await teamDao.patchMemberOut(connection, params);
+            const patchTeamStatus2 = await teamDao.patchTeamStatus(connection, teamId);
+        }
+        else{
+            const patchTeamStatus2 = await teamDao.patchMemberOut(connection, params);
+
+
 
         }
-        else
-        {
-            console.log(3);
-            const patchTeamStatus = await teamDao.patchTeamStatus(connection, teamId);
-            console.log(4);
-        }
+         //   return  response(baseResponse.TEAM_NOT_ALLOWED);
+
+      //  }
+      //  else
+      //  {
+
+     //   }
         await connection.commit();
         connection.release();
 

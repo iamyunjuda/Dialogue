@@ -266,6 +266,33 @@ exports.patchTeam = async function (req, res) {
 
     return res.send(postTeamNameResponse);
 };
+
+
+exports.getTeamInfoForPatch = async function (req, res) {
+
+    /**
+     * Body: friendId
+     */
+
+
+    const userIdFromJWT = req.verifiedToken.userId
+    const userId = req.params.userId;
+    const teamId = req.params.teamId;
+    if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
+    if (!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
+    if (userIdFromJWT != userId) {
+        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+    }
+
+
+
+    const getTeamInfoForPatchResponse = await teamService.getTeamInfoForPatch(
+        userId,teamId
+    );
+
+    return res.send(getTeamInfoForPatchResponse);
+};
+
 /**
  * API No. 16
  * API Name : 팀멤버 수정하기
