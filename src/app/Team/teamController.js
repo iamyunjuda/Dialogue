@@ -34,7 +34,7 @@ exports.postTeam = async function (req, res) {
 
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
     if(!targetId)return res.send(errResponse(baseResponse.FRIENDID_EMPTY));
     // 빈 값 체크
@@ -81,7 +81,7 @@ exports.postTeamMembers = async function (req, res) {
     console.log(teamId,targetId, memberId,"asf");
     if (!userId && !memberId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
     // 길이 체크
     //if (targetId.length==0)
@@ -118,7 +118,7 @@ exports.getTeamMemberId = async function (req, res) {
     if(!memberId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
 
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
     // 길이 체크
     //if (targetId.length==0)
@@ -156,7 +156,7 @@ exports.getTeamMembers = async function (req, res) {
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
     // 길이 체크
 
@@ -180,7 +180,7 @@ exports.getTeamMemberAndMYSchedule = async function (req, res) {
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
     // 길이 체크
 
@@ -208,7 +208,7 @@ exports.getTeam = async function (req, res) {
 
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+      return  res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
 
 
@@ -239,7 +239,7 @@ exports.patchTeam = async function (req, res) {
 
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+       return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
     // 빈 값 체크
     if(!teamId) return res.send(response(baseResponse.TEAM_TEAMID_EMPTY));
@@ -281,7 +281,7 @@ exports.getTeamInfoForPatch = async function (req, res) {
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
 
 
@@ -312,7 +312,7 @@ exports.patchTeamMembers = async function (req, res) {
 
     if (!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
 
 
@@ -338,7 +338,7 @@ exports.patchMemberOut = async function (req, res) {
 
     if (!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
 
 
@@ -370,7 +370,7 @@ exports.patchTeamStatus = async function (req, res) {
 
     if (!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
 
 

@@ -67,7 +67,7 @@ exports.getSchedule = async function (req, res) {
 
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
 
     const scheduleGet = await scheduleService.retrieveScheduleGet(
@@ -86,7 +86,7 @@ exports.getTeamSchedules = async function (req, res) {
     const teamId =req.params.teamId;
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
     if(!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
     const teamScheduleGet = await scheduleService.retrieveTeamScheduleGet(
@@ -113,7 +113,7 @@ exports.patchSchedule = async function (req, res) {
 
     if(courseDay>6) return res.send(errResponse(baseResponse.SCHEDULE_COURSEDAY_EXIST));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
 
 
     }
@@ -143,7 +143,7 @@ exports.patchScheduleStatus = async function (req, res) {
     if (!scheduleId) return res.send(errResponse(baseResponse.SCHEDULE_TEAMSCHEDULEID_EMPTY));
 
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
 
     }
 
@@ -173,7 +173,7 @@ exports.getAllMembersSchedules = async function (req, res) {
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (!teamId) return res.send(errResponse(baseResponse.TEAM_TEAMID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+      return  res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
 
 
     }
@@ -223,7 +223,7 @@ exports.getFriendSchedule = async function (req, res) {
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
 
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+       return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
 
 
@@ -268,7 +268,7 @@ exports.postTeamSchedule = async function (req, res) {
 
 
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
 
 
     }
@@ -297,7 +297,7 @@ exports.getTeamSchedule = async function (req, res) {
 
 
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
     }
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
 
@@ -327,7 +327,7 @@ exports.patchTeamScheduleName = async function (req, res) {
     if(!courseName) return res.send(errResponse(baseResponse.SCHEDULE_COURSENAME_EMPTY));
 
     if (userIdFromJWT != userId)
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
 
 
 
@@ -349,23 +349,25 @@ exports.patchTeamScheduleTime = async function (req, res) {
 
     const userIdFromJWT = req.verifiedToken.userId;
     const userId = req.params.userId;
-    const {teamScheduleId ,startTime, endTime, courseDay} = req.body;
+    const {teamScheduleId ,startTime, endTime, courseDay, courseName} = req.body;
 
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if(!startTime) return res.send(errResponse(baseResponse. SCHEDULE_ACTIVATEDTIME_EMPTY));
     if(!endTime)return  res.send(errResponse(baseResponse.SCHEDULE_ENDTIME_EMPTY));
     if(!teamScheduleId) return res.send(errResponse(baseResponse.SCHEDULE_TEAMSCHEDULEID_EMPTY));
     if(!courseDay)   return res.send(errResponse(baseResponse.SCHEDULE_COURSEDAY_EXIST));
+    if(!courseName) return res.send(errResponse(baseResponse.SCHEDULE_COURSENAME_EMPTY));
+
 
 
     if (userIdFromJWT != userId)
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
 
 
 
 
     const teamSchedulePatch = await scheduleService.retrieveTeamScheduleTimePatch(
-        teamScheduleId, userId, startTime, endTime,courseDay
+        teamScheduleId, userId, startTime, endTime,courseDay,courseName
     );
 
     return res.send(teamSchedulePatch);
@@ -388,7 +390,7 @@ exports.patchTeamScheduleStatus = async function (req, res) {
 
 
     if (userIdFromJWT != userId)
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+       return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
 
 
 

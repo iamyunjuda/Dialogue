@@ -103,7 +103,7 @@ exports.getUserPassword = async function (userId,password) {
   console.log(getUserPasswordResult[0].count,"eee");
 
   if(getUserPasswordResult[0].count != 1){
-
+    connection.release();
     return errResponse(baseResponse.PASSWORD_NOT_MATCH);
   }
 

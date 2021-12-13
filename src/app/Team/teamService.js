@@ -27,7 +27,10 @@ exports.postTeamName = async function (teamName, dueDate,userId,friendId) {
             //활성화된 유저인지 확인
             // console.log(friendId[i],"asd");
             const userCheckRows = await teamProvider.userCheck(friendId[i]);
-            if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+            if(userCheckRows <1){
+                connection.release();
+                return  response(baseResponse.USER_UNACTIVATED);
+            }
 
            // const params3 = [getTeamId.teamId, friendId[i]]
             //const addTeamMembersResult = await teamDao.addTeamMembers(connection, params3);
@@ -52,6 +55,7 @@ exports.postTeamName = async function (teamName, dueDate,userId,friendId) {
             else{
 
                 console.log("falsase");
+                connection.release();
                 return response(baseResponse.DATE_ERROR);
             }
 
@@ -85,8 +89,8 @@ exports.postTeamName = async function (teamName, dueDate,userId,friendId) {
         const params2 =[getTeamId.teamId, userId];
         const addTeamMembersResult = await teamDao.addTeamMembers(connection, params2);
 
-
-
+        //여기 추가함
+        await connection.commit();
         connection.release();
 
         return response(baseResponse.SUCCESS);
@@ -106,7 +110,10 @@ exports.patchTeamName = async function (teamId, teamName, dueDate,userId) {
 
         await connection.beginTransaction();
         const checkTeamId = await teamDao.checkTeamIdExist(connection,teamId);
-        if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        if(checkTeamId.length !=1) {
+            connection.release();
+            return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        }
 
 
         const params =[teamName, dueDate,teamId];
@@ -144,7 +151,10 @@ exports.postTeamMembersWithTargetId = async function (teamId,userId,friendId) {
             //활성화된 유저인지 확인
           // console.log(friendId[i],"asd");
             const userCheckRows = await teamProvider.userCheck(friendId[i]);
-            if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+            if(userCheckRows <1) {
+                connection.release();
+                return  response(baseResponse.USER_UNACTIVATED);
+            }
 
             const params = [teamId, friendId[i]]
             const addTeamMembersResult = await teamDao.addTeamMembers(connection, params);
@@ -182,14 +192,20 @@ exports.postTeamMembersWithMemberId = async function (teamId,userId,memberId) {
         const exchangeMemberIdTofriendId = await teamProvider.getUserId(memberId);
 
         const friendId = exchangeMemberIdTofriendId;
-        if(friendId ==undefined) return response(baseResponse.USER_USERID_NOT_EXIST);
+        if(friendId ==undefined) {
+            connection.release();
+            return response(baseResponse.USER_USERID_NOT_EXIST);
+        }
         console.log("hi",friendId,"here");
 console.log("----------------");
         const userCheckRows = await teamProvider.userCheck(friendId);
         console.log("hi","here",userCheckRows);
 
 
-        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1) {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
         const params = [teamId, friendId];
         const addTeamMembersResult = await teamDao.addTeamMembers(connection, params);
@@ -216,10 +232,16 @@ exports.getTeamInfoForPatch = async function(userId,teamId) {
         //const params =[ teamName, dueDate];
         //활성화된 유저인지 확인
         const userCheckRows = await teamProvider.userCheck(userId);
-        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1) {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
         //해당 teamId가 존재하는지 그리고 권한이 있는지
         const checkTeamId = await teamDao.checkTeamIdExist(connection,teamId);
-        if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        if(checkTeamId.length !=1) {
+            connection.release();
+            return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        }
         //if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
 
 
@@ -261,10 +283,17 @@ exports.getTeamMembers = async function (userId,teamId) {
 
         //활성화된 유저인지 확인
         const userCheckRows = await teamProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1)
+        {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
         //해당 teamId가 존재하는지 그리고 권한이 있는지
         const checkTeamId = await teamDao.checkTeamIdExist(connection,teamId);
-        if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        if(checkTeamId.length !=1) {
+            connection.release();
+            return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        }
         //if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
 
 
@@ -293,13 +322,23 @@ exports.getTeagetTeamMemberAndMYSchedulemMembers = async function (userId,teamId
         await connection.beginTransaction();
         const checkTeamId = await teamDao.checkTeamIdExist(connection,teamId);
         console.log(checkTeamId);
-        if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
-        if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
+        if(checkTeamId.length !=1) {
+            connection.release();
+            return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        }
+        if(checkTeamId[0].userId !=userId) {
+            connection.release();
+            return  response(baseResponse.TEAM_NOT_ALLOWED);
+        }
 
 
         //활성화된 유저인지 확인
         const userCheckRows = await scheduleProvider.userCheck(userId);
-        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+
+        if(userCheckRows <1) {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
         const getSchedule = await scheduleProvider.getSchedule(userId);
 
         if(getSchedule ==0 ){
@@ -371,7 +410,10 @@ exports.getTeamMembersIdWithMemberId = async function (userId,memberId) {
 
 
        // console.log(exchangeMemberIdTofriendId);
-        if(exchangeMemberIdTofriendId == undefined) return response(baseResponse.USER_USERID_NOT_EXIST);
+        if(exchangeMemberIdTofriendId == undefined) {
+            connection.release();
+            return response(baseResponse.USER_USERID_NOT_EXIST);
+        }
 
         const friendId = exchangeMemberIdTofriendId.userId;
 
@@ -379,7 +421,10 @@ exports.getTeamMembersIdWithMemberId = async function (userId,memberId) {
         //console.log("hi","here",userCheckRows);
 
 
-        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1) {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
     const params =[ userId, friendId];
         const getFriendListRows = await teamProvider.getFriendId(params);
 
@@ -411,12 +456,19 @@ exports.patchTeamOut = async function (teamId,userId) {
         //const params =[ teamName, dueDate];
         //활성화된 유저인지 확인
         const userCheckRows = await teamProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1)
+        {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
         //해당 teamId가 존재하는지 그리고 권한이 있는지
         const param = [teamId, userId];
         const checkTeamId = await teamProvider.checkTeamIdMemberExist(param);
-        if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        if(checkTeamId.length !=1) {
+            connection.release();
+            return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        }
 
         if(checkTeamId[0].userId !=userId){
             const params =[userId, teamId];
@@ -454,12 +506,21 @@ exports.patchTeamMembers = async function (teamId,userId,friendId) {
         //const params =[ teamName, dueDate];
         //활성화된 유저인지 확인
         const userCheckRows = await teamProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
         //해당 teamId가 존재하는지 그리고 권한이 있는지
         const checkTeamId = await teamDao.checkTeamIdExist(teamId);
-        if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
-        if(checkTeamId[0].userId !=userId) return  response(baseResponse.TEAM_NOT_ALLOWED);
+        if(checkTeamId.length !=1) {
+            connection.release();
+            return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        }
+        if(checkTeamId[0].userId !=userId) {
+            connection.release();
+            return  response(baseResponse.TEAM_NOT_ALLOWED);
+        }
 
 
         const params = [teamId, friendId];
@@ -490,6 +551,7 @@ exports.getTeamList = async function (userId) {
         const getTeamList = await teamDao.getTeamIdList(connection,userId);
         console.log(getTeamList);
         if(getTeamList.length == 0) {
+            connection.release();
             return response(baseResponse.SUCCESS,[]);
         }
         for(var i=0;i<getTeamList.length;i++){
@@ -541,12 +603,18 @@ exports.patchTeamStatus = async function (teamId, userId) {
         //활성화된 유저인지 확인
         console.log(1);
         const userCheckRows = await teamProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1) {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
         //해당 teamId가 존재하는지 그리고 권한이 있는지
         console.log(2);
         const checkTeamId = await teamDao.checkTeamIdExist(connection,teamId);
-        if(checkTeamId.length !=1) return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        if(checkTeamId.length !=1) {
+            connection.release();
+            return  response(baseResponse.TEAM_TEAMID_NOT_EXIST);
+        }
      //   if(checkTeamId[0].userId !=userId){
 
             const params =[userId, teamId];

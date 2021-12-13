@@ -23,10 +23,11 @@ exports.retrieveFriendRequest = async function (userId, friendName) {
         const friendNameExchange = await friendProvider.friendNameExchange(friendName);
         console.log(friendNameExchange,"adfadf");
         if(friendNameExchange == undefined){
+            connection.release();
             return response(baseResponse.FRIEND_NOT_EXIST);
         }
         if(friendNameExchange.userId == userId) {
-
+            connection.release();
             return response(baseResponse.FRIEND_REQUEST_NOT_POSSIBLE);
         }
 
@@ -34,20 +35,33 @@ exports.retrieveFriendRequest = async function (userId, friendName) {
 
         //이미 친구는 아닌지
         const friendSearch = await friendProvider.getFriendSearch(userId, friendUserId);
-        if(friendSearch.count>0){return response(baseResponse.ALREADY_FRIEND_ERROR)};
+        if(friendSearch.count>0){
+            connection.release();
+            return response(baseResponse.ALREADY_FRIEND_ERROR)};
         //블락된 유저가 아닌지(userId가 targetId로부터 차단 당한 것은 아닌지)
         const checkBlocked = await friendProvider.checkBlocked(userId, friendUserId);
-        if(checkBlocked.count >0) {return response(baseResponse.FRIEND_REQUEST_NOT_POSSIBLE)};
+        if(checkBlocked.count >0) {
+            connection.release();
+            return response(baseResponse.FRIEND_REQUEST_NOT_POSSIBLE)};
 
         //활성화된 유저인지 확인
         const userCheckRows = await friendProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
         const friendUserCheckRows = await friendProvider.userCheck(friendUserId);
-        if(userCheckRows <1)return  response(baseResponse.FRIEND_USER_UNACTIVATED);
+        if(userCheckRows <1){
+            connection.release();
+            return  response(baseResponse.FRIEND_USER_UNACTIVATED);
+        }
 
         //이미 보낸 요청이 있는지 확인
         const friendRequestCheckRows = await friendProvider.friendRequestExist(userId, friendUserId);
-        if(friendRequestCheckRows>0) return response(baseResponse.FRIEND_REQUEST_EXIST);
+        if(friendRequestCheckRows>0) {
+            connection.release();
+            return response(baseResponse.FRIEND_REQUEST_EXIST);
+        }
 
         //친구 요청 전송
         const params = [userId, friendUserId];
@@ -79,12 +93,18 @@ exports.retrievePostFriendRequest = async function (userId, friendRequestId) {
 
         //활성화된 유저인지 확인
         const userCheckRows = await friendProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
 
         //받은 요청이 있는지 확인
         const friendRequestExist = await friendProvider.friendRequestExistWithRequestId(friendRequestId,userId)
-        if(friendRequestExist.count ==0) return errResponse(baseResponse.FRIEND_REQUEST_NOT_EXIST);
+        if(friendRequestExist.count ==0) {
+            connection.release();
+            return errResponse(baseResponse.FRIEND_REQUEST_NOT_EXIST);
+        }
 
         //userID와 targetId 불러오기
         const getUserIds = await friendProvider.getFriendIds(friendRequestId);
@@ -163,14 +183,23 @@ exports.retrievePatchFriendName = async function (userId, targetId, friendName) 
 
         //활성화된 유저인지 확인
         const userCheckRows = await friendProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
         //존재하는 targetId인지
         const targetCheckRows = await friendProvider.userCheck(targetId);
-        if(targetCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(targetCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
         //userId 친구 목록에 targetId가 있는지
         const friendListExist = await friendProvider.friendListExist(userId,targetId);
-        if(friendListExist.count==0) return errResponse(baseResponse.FRIEND_LIST_NOT_EXIST);
+        if(friendListExist.count==0) {
+            connection.release();
+            return errResponse(baseResponse.FRIEND_LIST_NOT_EXIST);
+        }
 
         //friendName 바꾸기
         const params =[friendName,userId,targetId];
@@ -204,14 +233,23 @@ exports.retrievePatchFriendStatusToBlock = async function (userId, targetId) {
 
         //활성화된 유저인지 확인
         const userCheckRows = await friendProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
         //존재하는 targetId인지
         const targetCheckRows = await friendProvider.userCheck(targetId);
-        if(targetCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(targetCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
         //userId 친구 목록에 targetId가 있는지
         const friendListExist = await friendProvider.friendListExist(userId,targetId);
-        if(friendListExist.count==0) return errResponse(baseResponse.FRIEND_LIST_NOT_EXIST);
+        if(friendListExist.count==0) {
+            connection.release();
+            return errResponse(baseResponse.FRIEND_LIST_NOT_EXIST);
+        }
 
         //block하기
         const params = [userId, targetId];
@@ -248,15 +286,23 @@ exports.retrievePatchFriendStatusToUnfriend = async function (userId, targetId) 
 
         //활성화된 유저인지 확인
         const userCheckRows = await friendProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
         //존재하는 targetId인지
         const targetCheckRows = await friendProvider.userCheck(targetId);
-        if(targetCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(targetCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
         //userId 친구 목록에 targetId가 있는지
         const friendListExist = await friendProvider.friendListExist(userId,targetId);
-        if(friendListExist.count==0) return errResponse(baseResponse.FRIEND_LIST_NOT_EXIST);
-
+        if(friendListExist.count==0) {
+            connection.release();
+            return errResponse(baseResponse.FRIEND_LIST_NOT_EXIST);
+        }
 
         //친구 삭제
         const params1 =[userId,targetId];
@@ -290,15 +336,29 @@ exports.retrieveGetFriendList = async function (userId) {
 
         //활성화된 유저인지 확인
         const userCheckRows = await friendProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
-
+        if(userCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
+        const result = [];
         const getFriendListRows = await friendProvider.getFriendList(userId);
+        const getFriendRequestListRows = await friendProvider.getFriendRequestList(userId);
+        //getFriendListRows.numOfRequest =getFriendRequestListRows.count;
+       // result.push(getFriendListRows);
+        //result.push(getFriendListRows);
+        //getFriendListRows.push(getFriendRequestListRows);
+       // getFriendListRows.numOfRequest = getFriendRequestListRows.count;
+        //console.log(getFriendRequestListRows,"check1");
+        var pre = {
+            "friendRequestNum": getFriendRequestListRows,
+            "friendList" : getFriendListRows
+        };
 
-
-
+        //var pre2= {"friendRequestNum": getFriendRequestListRows};
+       // pre.push(pre2);
         await connection.commit();
         connection.release();
-        return response(baseResponse.SUCCESS,getFriendListRows);
+        return response(baseResponse.SUCCESS,pre);
 
     }
     catch (err){
@@ -321,7 +381,10 @@ exports.retrieveSearchFriend = async function (userId,friendName) {
 
         //활성화된 유저인지 확인
         const userCheckRows = await friendProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
         if(friendName!=''){
             console.log(11111);
             const getFriendSearchListRows = await friendProvider.getFriendSearchList(userId,friendName);
@@ -359,7 +422,10 @@ exports.retrieveFriendRequestRefuse = async function (userId,friendRequestId) {
 
         //활성화된 유저인지 확인
         const userCheckRows = await friendProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
         const params = [userId,friendRequestId];
         const friendRequest = await friendDao.friendRequestPatch(connection,params);
@@ -396,7 +462,10 @@ exports.retrieveFriendRequestList = async function (userId) {
 
         //활성화된 유저인지 확인
         const userCheckRows = await friendProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
         const friendRequestList = await friendProvider.friendRequestList(userId);
 
