@@ -213,7 +213,18 @@ async function getIfTheyAreFriend(connection, params) {
     const [friendRows] = await connection.query(getIfTheyAreFriendQuery,params);
     return friendRows[0];
 }
+async function getFriendRequestList(connection, userId) {
+    const getIfTheyAreFriendQuery = `
 
+
+        select count(userId) as count from FriendRequest where userId=?  and status = 'ACTIVATED';
+
+
+
+    `;
+    const [friendRows] = await connection.query(getIfTheyAreFriendQuery,userId);
+    return friendRows[0];
+}
 
 module.exports={
     selectUserCheck,
@@ -242,5 +253,7 @@ module.exports={
     friendRequestPatch,
     getFriendRequest,
     getIfTheyAreFriend,
+    getFriendRequestList,
+
 
 }

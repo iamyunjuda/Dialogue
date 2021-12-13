@@ -299,7 +299,10 @@ exports.retrieveScheduleGet = async function (userId) {
 
         //활성화된 유저인지 확인
         const userCheckRows = await scheduleProvider.userCheck(userId);
-        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1) {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
         const getSchedule = await scheduleProvider.getSchedule(userId);
 
         if(getSchedule ==0 ){
@@ -348,14 +351,23 @@ exports.retrieveGetFriendSchedule = async function (userId,friendId) {
 
         //활성화된 유저인지 확인
         const userCheckRows = await scheduleProvider.userCheck(userId);
-        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1) {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
         const friendCheckRows = await scheduleProvider.userCheck(friendId);
-        if(friendCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+        if(friendCheckRows <1) {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
         //둘이 친구인지 확인하기!
         const checkThem = await scheduleProvider.checkTheyAreFriend(userId, friendId);
-        if(checkThem.count == 0)  return  response(baseResponse.FRIEND_NOT_EXIST);
+        if(checkThem.count == 0)  {
+            connection.release();
+            return  response(baseResponse.FRIEND_NOT_EXIST);
+        }
 
 
         const getSchedule = await scheduleProvider.getSchedule(userId);
@@ -415,8 +427,14 @@ exports.retrieveSchedulePatch = async function (scheduleId, userId, startTime, e
         // console.log(courseDay,"Course");
 
 
-        if(parseInt(startTimesplit[0]) >23 | parseInt(endTimesplit[0]) >23) return response(baseResponse.TIME_HOUR_ERROR);
-        if(parseInt(startTimesplit[1]) >59 | parseInt(endTimesplit[1]) >59) return response(baseResponse.TIME_MIN_ERROR);
+        if(parseInt(startTimesplit[0]) >23 | parseInt(endTimesplit[0]) >23) {
+            connection.release();
+            return response(baseResponse.TIME_HOUR_ERROR);
+        }
+        if(parseInt(startTimesplit[1]) >59 | parseInt(endTimesplit[1]) >59) {
+            connection.release();
+            return response(baseResponse.TIME_MIN_ERROR);
+        }
 
         if(parseInt(endTimesplit[0])==12 & parseInt(endTimesplit[1]) ==0){
             endTimesplit[0]=11;
@@ -432,8 +450,11 @@ exports.retrieveSchedulePatch = async function (scheduleId, userId, startTime, e
 
         //활성화된 유저인지 확인
         const userCheckRows = await scheduleProvider.userCheck(userId);
-console.log("check1",scheduleId);
-        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+        console.log("check1",scheduleId);
+        if(userCheckRows <1) {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
 
 
@@ -443,7 +464,10 @@ console.log("check1",scheduleId);
 
         const getScheduleExist = await scheduleProvider.getScheduleExistForPatch(scheduleId);
         console.log("check2");
-        if(getScheduleExist[0].count ==0) return  response(baseResponse.SCHEDULE_NOT_EXIST);
+        if(getScheduleExist[0].count ==0) {
+            connection.release();
+            return  response(baseResponse.SCHEDULE_NOT_EXIST);
+        }
 
         console.log("check4",courseDay);
         for(var i=0;i< courseDay.length ;i++){
@@ -601,12 +625,18 @@ exports.retrieveTeamSchedulePost = async function ( userId,teamId,startTime, end
 
         //팀장만 활성화되어 있는지 확인하면됨
         const userCheckRows = await scheduleProvider.userCheck(userId);
-        if(userCheckRows <1) return response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1) {
+            connection.release();
+            return response(baseResponse.USER_UNACTIVATED);
+        }
 
         //팀 상태 확인하기
         const teamCheckRows= await scheduleProvider.teamCheck(teamId);
         console.log(teamCheckRows,"팀 상태 확인한 결과")
-        if(teamCheckRows!=1) return response(baseResponse.TEAM_UNACTIVATED);
+        if(teamCheckRows!=1) {
+            connection.release();
+            return response(baseResponse.TEAM_UNACTIVATED);
+        }
 
         const startTimesplit = startTime.split(":");
         const endTimesplit = endTime.split(":");
@@ -627,8 +657,14 @@ exports.retrieveTeamSchedulePost = async function ( userId,teamId,startTime, end
        // console.log(courseDay,"Course");
 
 
-        if(parseInt(startTimesplit[0]) >23 | parseInt(endTimesplit[0]) >23) return response(baseResponse.TIME_HOUR_ERROR);
-        if(parseInt(startTimesplit[1]) >59 | parseInt(endTimesplit[1]) >59) return response(baseResponse.TIME_MIN_ERROR);
+        if(parseInt(startTimesplit[0]) >23 | parseInt(endTimesplit[0]) >23){
+            connection.release();
+             return response(baseResponse.TIME_HOUR_ERROR);}
+
+        if(parseInt(startTimesplit[1]) >59 | parseInt(endTimesplit[1]) >59) {
+            connection.release();
+            return response(baseResponse.TIME_MIN_ERROR);
+        }
         if(parseInt(endTimesplit[0])==12 & parseInt(endTimesplit[1]) ==0){
             endTimesplit[0]=11;
             endTimesplit[1]=59;
@@ -840,7 +876,10 @@ exports.retrieveGetTeamSchedule = async function (userId) {
 
         //활성화된 유저인지 확인
         const userCheckRows = await scheduleProvider.userCheck(userId);
-        if(userCheckRows <1) return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1) {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
         //유저가 들어있는 팀의 목록 가져오기
         const getTeamIdOfUser = await scheduleProvider.getTeamIdOfUser(userId);
         const ret =[];
@@ -901,12 +940,19 @@ exports.retrieveTeamScheduleNamePatch = async function (teamScheduleId,userId,co
         await connection.beginTransaction();
 
         const getScheduleExist = await scheduleProvider.getTeamScheduleExistForPatch(teamScheduleId);
-        if(getScheduleExist[0].count ==0) return  response(baseResponse.SCHEDULE_NOT_EXIST);
+        if(getScheduleExist[0].count ==0) {
+
+            connection.release();
+            return  response(baseResponse.SCHEDULE_NOT_EXIST);
+        }
 
 
         //userId가 팀장인지 확인
         const checkUserIdIsALeader =  await scheduleProvider.getTeamLeaderId(teamScheduleId);
-        if(checkUserIdIsALeader.userId != userId) return response(baseResponse.SCHEDULE_CHANGE_NOT_ALLOWED);
+      //  if(checkUserIdIsALeader.userId != userId) {
+        //    connection.release();
+          //  return response(baseResponse.SCHEDULE_CHANGE_NOT_ALLOWED);
+        //}
         const params = [courseName,teamScheduleId];
         const patchTeamScheduleName =await scheduleDao.updateTeamScheduleName(connection,params);
 
@@ -928,7 +974,7 @@ exports.retrieveTeamScheduleNamePatch = async function (teamScheduleId,userId,co
 };
 
 
-exports.retrieveTeamScheduleTimePatch = async function (teamScheduleId, userId,  startTime, endTime,courseDay) {
+exports.retrieveTeamScheduleTimePatch = async function (teamScheduleId, userId,  startTime, endTime,courseDay,courseName) {
     const connection = await pool.getConnection(async (conn) => conn);
 
 
@@ -952,8 +998,14 @@ exports.retrieveTeamScheduleTimePatch = async function (teamScheduleId, userId, 
         }
 
 
-        if(parseInt(startTimesplit[0]) >23 | parseInt(endTimesplit[0]) >23) return response(baseResponse.TIME_HOUR_ERROR);
-        if(parseInt(startTimesplit[1]) >59 | parseInt(endTimesplit[1]) >59) return response(baseResponse.TIME_MIN_ERROR);
+        if(parseInt(startTimesplit[0]) >23 | parseInt(endTimesplit[0]) >23) {
+            connection.release();
+            return response(baseResponse.TIME_HOUR_ERROR);
+        }
+        if(parseInt(startTimesplit[1]) >59 | parseInt(endTimesplit[1]) >59) {
+            connection.release();
+            return response(baseResponse.TIME_MIN_ERROR);
+        }
         if(parseInt(endTimesplit[0])==12 & parseInt(endTimesplit[1]) ==0){
             endTimesplit[0]=11;
             endTimesplit[1]=59;
@@ -976,11 +1028,11 @@ exports.retrieveTeamScheduleTimePatch = async function (teamScheduleId, userId, 
 
 
         //userId가 팀장인지 확인
-        const checkUserIdIsALeader =  await scheduleProvider.getTeamLeaderId(teamScheduleId);
-        if(checkUserIdIsALeader.userId != userId) {
-            connection.release();
-            return response(baseResponse.SCHEDULE_CHANGE_NOT_ALLOWED);
-        }
+       const checkUserIdIsALeader =  await scheduleProvider.getTeamLeaderId(teamScheduleId);
+     //   if(checkUserIdIsALeader.userId != userId) {
+       //     connection.release();
+         //   return response(baseResponse.SCHEDULE_CHANGE_NOT_ALLOWED);
+        //}
 
 
 
@@ -1012,9 +1064,9 @@ exports.retrieveTeamScheduleTimePatch = async function (teamScheduleId, userId, 
                 const scheduleRows = await scheduleProvider.scheduleCheck(checkParams);
 
 //
-                if (scheduleRows.st + scheduleRows.ed == 0) {
-                    return response(baseResponse.SCHEDULE_EXIST);
-              }
+            //    if (scheduleRows.st + scheduleRows.ed == 0) {
+              //      return response(baseResponse.SCHEDULE_EXIST);
+              //}
             }
         }
 
@@ -1029,10 +1081,10 @@ exports.retrieveTeamScheduleTimePatch = async function (teamScheduleId, userId, 
 
                 const scheduleRows = await scheduleProvider.teamScheduleCheck(checkParams);
 
-                if (scheduleRows.st + scheduleRows.ed == 0) {
-                    connection.release();
-                    return response(baseResponse.SCHEDULE_EXIST);
-                }
+                //if (scheduleRows.st + scheduleRows.ed == 0) {
+                  //  connection.release();
+                    //return response(baseResponse.SCHEDULE_EXIST);
+                //}
             }
         }
 
@@ -1041,7 +1093,7 @@ exports.retrieveTeamScheduleTimePatch = async function (teamScheduleId, userId, 
         for(var i=0;i<courseDay.length;i++) {
             console.log(courseDay);
 
-                const patchScheduleParams = [checkUserIdIsALeader.teamId, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i],teamScheduleId];
+                const patchScheduleParams = [checkUserIdIsALeader.teamId, startTimesplit[0], startTimesplit[1], endTimesplit[0], endTimesplit[1], courseDay[i],courseName,teamScheduleId];
                 const patchTeamSchedule = await scheduleDao.patchTeamSchedule(connection, patchScheduleParams);
         }
 
@@ -1228,7 +1280,10 @@ exports.retrieveScheduleStatusPatch = async function (scheduleId, userId) {
 
         //스케줄이 존재하는지
         const getScheduleExist = await scheduleProvider.getScheduleExistForPatch(scheduleId);
-        if(getScheduleExist[0].count ==0) return  response(baseResponse.SCHEDULE_NOT_EXIST);
+        if(getScheduleExist[0].count ==0) {
+            connection.release();
+            return  response(baseResponse.SCHEDULE_NOT_EXIST);
+        }
         const getScheduleId = await scheduleDao.getDeleteId(connection,scheduleId);
 
             const deleteId = getScheduleId[0].deleteId;

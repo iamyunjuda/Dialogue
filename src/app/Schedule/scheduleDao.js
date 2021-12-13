@@ -1,5 +1,5 @@
 // 모든 유저 조회
-async function selectScheduleCheck(  connection, checkScheduleParams) {
+async function selectScheduleCheck(connection, checkScheduleParams) {
     const selectScheduleCheckQuery = `
 
         select (case
@@ -213,7 +213,7 @@ async function selectTeamLeader(connection, teamScheduleId) {
 async function patchTeamSchedule(connection, params) {
     const patchTeamScheduleQuery = `
         UPDATE TeamSchedule SET
-                                teamId= ? , startTimeHour=?, startTimeMin=?,endTimeHour=?, endTimeMin=?, courseDay=?, updatedAt= current_timestamp()
+                                teamId= ? , startTimeHour=?, startTimeMin=?,endTimeHour=?, endTimeMin=?, courseDay=?, courseName= ?,updatedAt= current_timestamp()
         where teamScheduleId=?;
     `;
     const [scheduleRows] = await connection.query(patchTeamScheduleQuery,params);
@@ -235,7 +235,7 @@ async function updateTeamScheduleName(connection, params) {
     const patchTeamScheduleStatusQuery = `
         UPDATE TeamSchedule SET
                               courseName= ? ,updatedAt= current_timestamp()
-        where deleteId=?;
+        where deleteId=? and status= 'ACTIVATED';
     `;
     const [scheduleRows] = await connection.query(patchTeamScheduleStatusQuery,params);
 

@@ -24,7 +24,7 @@ exports.postFriendSend = async function (req, res) {
 
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
 
 
     }
@@ -57,7 +57,7 @@ exports.patchFriendRequestRefuse = async function (req, res) {
 
     if (!userId) return res.send(errResponse(baseResponse.USER_USERID_EMPTY));
     if (userIdFromJWT != userId) {
-        res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
+        return res.send(errResponse(baseResponse.USER_ID_NOT_MATCH));
 
 
     }

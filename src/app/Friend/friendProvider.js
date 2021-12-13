@@ -130,7 +130,7 @@ exports.getFriendList = async function (userId) {
         const getUpdatedInfoScheduleId = await friendDao.getUpdatedInfoScheduleId(connection,getFriendListResult[i].targetId);
         if(getUpdatedInfoScheduleId.scheduleStatusId == null) continue;
         //만약 최근 일정이 뜨지 않는 다면 없느 것임
-            console.log(11111,getUpdatedInfoScheduleId);
+        console.log(11111,getUpdatedInfoScheduleId);
         const getUpdatedInfo= await friendDao.getUpdatedInfo(connection,getUpdatedInfoScheduleId.scheduleStatusId);
 
         getFriendListResult[i].recentlyUpdatedCourseName= getUpdatedInfo.courseName;
@@ -201,3 +201,15 @@ exports.checkAlereadyFriend = async function (userId,targetId) {
     console.log(getFriendRequestResult,"확인해 몇개인지");
     return getFriendRequestResult.count;
 };
+
+exports.getFriendRequestList = async function (userId){
+    const connection = await pool.getConnection(async (conn) => conn);
+    const getFriendRequestListResult = await friendDao.getFriendRequestList(
+        connection, userId
+    );
+    console.log(getFriendRequestListResult,"여기확인");
+    connection.release();
+    return getFriendRequestListResult;
+
+
+}

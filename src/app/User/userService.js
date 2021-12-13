@@ -66,7 +66,10 @@ exports.createAppleUser = async function (email, nickname) {
         await connection.beginTransaction();
         const emailRows = await userProvider.emailCheck(email);
         if (emailRows.length > 0)
+        {
+            connection.release();
             return errResponse(baseResponse.SIGNUP_REDUNDANT_EMAIL);
+        }
 
         // 비밀번호 암호화
 
@@ -117,7 +120,10 @@ exports.postSignIn = async function (email, password) {
         // 이메일 여부 확인
         const emailRows = await userProvider.emailCheck(email);
 
-        if (emailRows.length < 1) return errResponse(baseResponse.SIGNIN_EMAIL_WRONG);
+        if (emailRows.length < 1) {
+            connection.release();
+            return errResponse(baseResponse.SIGNIN_EMAIL_WRONG);
+        }
 
         const selectEmail = emailRows[0].userEmail;
         console.log(selectEmail,"맞나???");
@@ -136,7 +142,7 @@ exports.postSignIn = async function (email, password) {
 
         if (passwordRows[0].count==0) {
             console.log("adsf");
-
+            connection.release();
             return errResponse(baseResponse.SIGNIN_PASSWORD_WRONG);
         }
 
@@ -144,8 +150,10 @@ exports.postSignIn = async function (email, password) {
         const userInfoRows = await userProvider.accountCheck(email);
 
         if (userInfoRows[0].status === "INACTIVE") {
+            connection.release();
             return errResponse(baseResponse.SIGNIN_INACTIVE_ACCOUNT);
         } else if (userInfoRows[0].status === "DELETED") {
+            connection.release();
             return errResponse(baseResponse.SIGNIN_WITHDRAWAL_ACCOUNT);
         }
 
@@ -183,7 +191,10 @@ exports.editUser = async function (userId, userName, userPassword) {
         await connection.beginTransaction();
 
         const userCheckRows = await friendProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1){
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
         const hashedPassword = await crypto
             .createHash("sha512")
             .update(userPassword)
@@ -216,7 +227,10 @@ exports.editUserState = async function (userId, status) {
     try {
         await connection.beginTransaction();
         const userCheckRows = await friendProvider.userCheck(userId);
-        if(userCheckRows <1)return  response(baseResponse.USER_UNACTIVATED);
+        if(userCheckRows <1) {
+            connection.release();
+            return  response(baseResponse.USER_UNACTIVATED);
+        }
 
         const editUserStateResult = await userProvider.updateUserStateInfo(userId, status)
         await connection.commit();
