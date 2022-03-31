@@ -4,7 +4,7 @@
   
     
 ### 앱 소개
-![image](https://user-images.githubusercontent.com/91481253/139715581-c6e72097-733f-4e7c-a397-16f754978cb6.png)##########
+![image](https://user-images.githubusercontent.com/91481253/139715581-c6e72097-733f-4e7c-a397-16f754978cb6.png)
 
 ##### 어플 다운로드 링크
 https://apps.apple.com/kr/app/dialogue/id1597933871
@@ -14,6 +14,7 @@ https://apps.apple.com/kr/app/dialogue/id1597933871
  
 ***
 ***
+
 
 
 
